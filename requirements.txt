@@ -1,0 +1,6 @@
+discord.py==2.4.0
+Pillow==11.0.0
+python-dotenv==1.0.1
+pytube==15.0.0
+sympy==1.13.3
+yt_dlp==2024.11.18

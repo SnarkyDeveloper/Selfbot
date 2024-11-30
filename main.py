@@ -99,7 +99,8 @@ async def on_message_edit(before, after):
         "message_before": before.content,
         "message_after": after.content,
         "type": "edit",
-        "server": before.guild.id if before.guild else 'DM'
+        "server": before.guild.id if before.guild else 'DM',
+        "message_link": f"https://discord.com/channels/{before.guild.id if before.guild else '@me'}/{before.channel.id}/{before.id}"
     })
     write_messages(messages_data)
 
@@ -114,6 +115,8 @@ async def setup_cogs():
     await bot.load_extension('Backend.Modules.perms')
     await bot.load_extension('Backend.Modules.snipe')
     await bot.load_extension('Backend.Modules.music')
+    await bot.load_extension('Backend.Modules.avatar')
+    await bot.load_extension('Backend.Modules.quote')
     print("Cogs loaded")
     
 async def main():
