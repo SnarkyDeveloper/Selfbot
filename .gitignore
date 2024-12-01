@@ -167,3 +167,6 @@ cython_debug/
 users.json
 messages.json
 gitignore
+test.py
+/audio
+/data/economy/eco.json

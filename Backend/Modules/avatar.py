@@ -8,12 +8,22 @@ class Avatar(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     @commands.command(name="avatar", description="Get the avatar of a user", aliases=["av"])
-    async def avatar(self, ctx, user: discord.Member = None):
+    async def avatar(self, ctx, user=None):
         if not check_permissions(ctx.author):
             return
+        
         if user is None:
-            user = ctx.author
-        await ctx.send(f"{user.avatar.url}")
+            member = ctx.author
+        else:
+            try:
+                # Try to convert the input to a member object
+                member = await commands.MemberConverter().convert(ctx, user)
+            except commands.MemberNotFound:
+                await ctx.send("User not found!")
+                return
+        
+        avatar_url = member.display_avatar.url
+        await ctx.send(avatar_url)
     @commands.command(name="avatar_server", description="Get the avatar of the server", aliases=["as"])
     async def avatar_server(self, ctx):
         if not check_permissions(ctx.author):

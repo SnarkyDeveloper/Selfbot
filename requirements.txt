@@ -1,6 +1,11 @@
-discord.py==2.4.0
+beautifulsoup4==4.12.3
+diffusers==0.31.0
+discord.py-self
+httpx==0.28.0
 Pillow==11.0.0
 python-dotenv==1.0.1
 pytube==15.0.0
+Requests==2.32.3
 sympy==1.13.3
+torch==2.4.1
 yt_dlp==2024.11.18
