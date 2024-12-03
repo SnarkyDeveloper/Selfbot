@@ -108,17 +108,16 @@ async def eco(ctx, *args):
     if not args:
         await ctx.send("Available commands: work, daily, balance, steal, shop, coinflip, mafia, stripper")
         return
-
+    print("Bot is ready")
     # Split the first argument into command and potential parameters
     command_parts = args[0].split(maxsplit=1)
     command_name = command_parts[0].lower()
     print(f"Parsed command name: {command_name}")
-
+    loaded.append("Calculator")
     if command_name == "bal":
         command_name = "balance"
     elif command_name == "stripper":
         command_name = "stripper_cmd"
-
     
     command = eco.get_command(command_name)
     if command:
@@ -144,7 +143,6 @@ async def eco(ctx, *args):
         else:
             await ctx.invoke(command)
     else:
-        print(f"Command not found: {command_name}")
         await ctx.send(f"Unknown command: {command_name}")
 
 bot.eco = eco
@@ -215,19 +213,17 @@ async def main():
             print(f"Error args: {e.args}")
     finally:
         await bot.close()
-
-@bot.command(name='help', description="Shows this message")
-async def help_command(ctx, command_name=None):
-    if command_name:
-        command = bot.get_command(command_name)
-        if command:
-            await ctx.send(f"Help for {command_name}: {command.help}")
-        else:
-            await ctx.send(f"Command '{command_name}' not found.")
-    else:
+@bot.command(name='help')
+async def help_command(ctx):
+    print("Help command invoked")
+    try:
         commands_list = [f"`{command.name}`: {command.description}" for command in bot.commands]
-        await ctx.send("Available commands:\n" + "\n".join(commands_list))
-
+        response = "Available commands:\n" + "\n".join(commands_list)
+        print(f"Sending response: {response[:50]}...")  # Print first 50 chars
+        await ctx.send(response)
+        print("Response sent")
+    except Exception as e:
+        print(f"Error in help command: {e}")
 def handle_exception(loop, context):
     exc = context.get('exception')
     if isinstance(exc, (asyncio.CancelledError, KeyboardInterrupt)) or 'KeyboardInterrupt' in str(context):

@@ -1,7 +1,7 @@
 source ./venv/bin/activate
 
-# Start ollama in background and wait for it to be ready
-ollama serve &
+# Start ollama in background and redirect output to temp file
+ollama serve > /tmp/ollama.log 2>&1 &
 
 # Wait a moment for ollama to start
 sleep 2
