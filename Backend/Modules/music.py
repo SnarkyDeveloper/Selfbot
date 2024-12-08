@@ -38,7 +38,7 @@ class Music(commands.Cog):
                     'preferredcodec': 'mp3',
                     'preferredquality': '192',
                 }],
-                'outtmpl': os.path.join(audio_dir, '%(title)s.%(ext)s'),
+                'outtmpl': os.path.join(audio_dir, '%(title)s.mp3'),  # Changed to ensure .mp3 extension
             }
             
             os.makedirs(audio_dir, exist_ok=True)

@@ -4,6 +4,7 @@ from Backend.utils import check_permissions, CommandHelper
 
 class Choose(commands.Cog):
     def __init__(self, bot):
+        
         self.bot = bot
 
     @commands.command(description='For when you wanna settle the score some other way')

@@ -170,3 +170,4 @@ gitignore
 test.py
 /audio
 /data/economy/eco.json
+.vscode/settings.json
