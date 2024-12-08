@@ -1,36 +1,46 @@
 from Backend.bot import bot
-active = ['calculator', 'choose', 'perms', 'snipe', 'music', 'avatar', 'quote', ' ', 'reverse', "dictionary"]
+calculator = True
+choose = True
+perms = True
+snipe = True
+music = True
+avatar = True
+quote = True
+ollama = True
+reverse = True
+dictionary = True
+#--------
 economy = True
 loaded = []
 async def setup_cogs():
-    if active[0] != " ":
+    if calculator:
         await bot.load_extension('Backend.Modules.calculator')
         loaded.append("Calculator")
-    if active[1] != " ":
+    if choose:
         await bot.load_extension('Backend.Modules.choose')
         loaded.append("Choose")
-    if active[2] != " ":
+    if perms:
         await bot.load_extension('Backend.Modules.perms')
         loaded.append("Perms")
-    if active[3] != " ":
+    if snipe:
         await bot.load_extension('Backend.Modules.snipe')
         loaded.append("Snipe")
-    if active[4] != " ":
+    if music:
         await bot.load_extension('Backend.Modules.music')
         loaded.append("Music")
-    if active[5] != " ":
+    if avatar:
         await bot.load_extension('Backend.Modules.avatar')
         loaded.append("Avatar")
-    if active[6] != " ":
+    if quote:
         await bot.load_extension('Backend.Modules.quote')
         loaded.append("Quote")
-    if active[7] != " ":
+    if ollama:
         await bot.load_extension('Backend.Modules.ollama')
         loaded.append("Ollama")
-    if active[8] != " ":
+    if reverse:
         await bot.load_extension('Backend.Modules.reverse')
         loaded.append("Reverse")
-    if active[9] != " ":    
+    if dictionary:    
         await bot.load_extension('Backend.Modules.dictionary')
         loaded.append("Dictionary")
 # ----------------------Economy-------------------------------------
