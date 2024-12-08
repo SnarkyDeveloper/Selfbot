@@ -9,6 +9,7 @@ quote = True
 ollama = True
 reverse = True
 dictionary = True
+help = True
 #--------
 economy = True
 loaded = []
@@ -43,6 +44,9 @@ async def setup_cogs():
     if dictionary:    
         await bot.load_extension('Backend.Modules.dictionary')
         loaded.append("Dictionary")
+    if help:
+        await bot.load_extension('Backend.Modules.help')
+        loaded.append("Help")
 # ----------------------Economy-------------------------------------
     if economy == True:
         print("Cogs loaded, loading economy module...")

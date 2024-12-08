@@ -10,7 +10,6 @@ if "%args%"=="--no-args" (
 if "%args%"=="--verbose" (
     python -m pip install -r requirements.txt --exists-action i
 )
-start /min cmd /k "ollama serve"
 
 timeout /t 2 /nobreak > nul
 
