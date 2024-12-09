@@ -33,5 +33,5 @@ bot = CustomBot(
         self_bot=True,
         status=discord.Status.dnd,
         activity=discord.Activity(type=discord.ActivityType.playing, name=read_settings()["main"]["status"], buttons=["htttps://github.com/SnarkyDeveloper/Selfbot"]),
-        help_command=None
+        help_command=None,
     )
