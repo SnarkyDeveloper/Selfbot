@@ -10,7 +10,9 @@ if "%args%"=="--no-args" (
 if "%args%"=="--verbose" (
     python -m pip install -r requirements.txt --exists-action i
 )
-
+if "%args%"=="--no-pip" (
+    echo skipping...
+)
 timeout /t 2 /nobreak > nul
 
 ollama list | findstr "llama3.2:latest" > nul

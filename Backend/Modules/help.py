@@ -7,7 +7,6 @@ class Help(commands.Cog):
 
     @commands.command(name='help', description="Shows this message")
     async def help_command(self, ctx):
-        print("Help command invoked")
         try:
             commands_list = [f"`{command.name}`: {command.description}" for command in self.bot.commands]
             response = "Available commands:\n" + "\n".join(commands_list)

@@ -2,7 +2,6 @@ from Backend.bot import bot
 @bot.group(invoke_without_command=True)
 async def eco(ctx, *args):
     """Economy commands"""
-    print(f"Eco group called with args: {args}")
     
     if not args:
         await ctx.send("Available commands: work, daily, balance, steal, shop, coinflip, mafia, stripper")
@@ -46,7 +45,6 @@ async def eco(ctx, *args):
 @bot.group(invoke_without_command=True)
 async def moderation(ctx, *args):
     """Moderation commands"""
-    print(f"Moderation group called with args: {args}")
     
     if not args:
         await ctx.send("Available commands: Kick, Ban, Mute, Role, Anti-Raid")
