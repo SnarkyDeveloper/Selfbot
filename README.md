@@ -1,5 +1,6 @@
 
 # Snarky's Selfbot
+![](https://tokei.rs/b1/github/SnarkyDeveloper/Selfbot) [![Completion Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/SnarkyDeveloper/Selfbot/master/.github/badges/completion.json)]
 
 This is my selfbot i made as a side project, it is probably going to stay maintained for a while.
 
