@@ -45,3 +45,6 @@ async def on_message_edit(before, after):
     })
     write_messages(messages_data)
 
+def logger():
+    bot.add_listener(on_message_delete, "on_message_delete")
+    bot.add_listener(on_message_edit, "on_message_edit")

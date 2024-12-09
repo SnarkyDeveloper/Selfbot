@@ -2,10 +2,12 @@ import base64
 import dotenv
 import os
 import asyncio
+import json
 from Backend.bot import bot
 from Backend.groups import *
 from Backend.cogs import setup_cogs
 from Backend.events import setup_events
+from Backend.logger import logger
 dotenv.load_dotenv()
 token = base64.b64decode(os.getenv("token")).decode("utf-8")
 setup_events()
@@ -38,6 +40,8 @@ if __name__ == "__main__":
     loop.set_exception_handler(handle_exception)
     try:
         loop.run_until_complete(main())
+    except json.JSONDecodeError as e:
+        print(f"Error parsing settings.json: {str(e)}")
     except KeyboardInterrupt:
         pass
     finally:

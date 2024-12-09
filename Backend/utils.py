@@ -55,3 +55,10 @@ def read_punishments():
             return json.load(file)
     except FileNotFoundError:
         return {"punishments": []}
+    
+def read_settings():
+    try:
+        with open(f'{path}/settings.json', 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {"settings": []}

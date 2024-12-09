@@ -9,9 +9,11 @@ quote = True
 ollama = True
 reverse = True
 dictionary = True
-help = True
+afk = True
+qotd = True
 #--------
 economy = True
+help = True
 loaded = []
 async def setup_cogs():
     if calculator:
@@ -44,9 +46,12 @@ async def setup_cogs():
     if dictionary:    
         await bot.load_extension('Backend.Modules.dictionary')
         loaded.append("Dictionary")
-    if help:
-        await bot.load_extension('Backend.Modules.help')
-        loaded.append("Help")
+    if afk:
+        await bot.load_extension('Backend.Modules.afk')
+        loaded.append("Afk")
+    if qotd:
+        await bot.load_extension('Backend.Modules.qotd')
+        loaded.append("Qotd")
 # ----------------------Economy-------------------------------------
     if economy == True:
         print("Cogs loaded, loading economy module...")
@@ -72,6 +77,9 @@ async def setup_cogs():
         loaded.append("EcoSlots")
         await bot.load_extension('Backend.Modules.Economy.dice')
         loaded.append("EcoDice")
+    if help:
+        await bot.load_extension('Backend.Modules.help')
+        loaded.append("Help")
     print("--------------------------------")
     print(f"Cogs loaded: {', '.join(loaded)}")
     print("--------------------------------")

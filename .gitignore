@@ -169,6 +169,6 @@ messages.json
 gitignore
 test.py
 /audio
-/data/economy/eco.json
+/data/*
 .vscode/settings.json
 .VSCodeCounter/*
