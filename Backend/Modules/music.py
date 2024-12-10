@@ -2,6 +2,7 @@ import discord, asyncio, os, yt_dlp, glob, sys
 from discord.ext import commands
 from pytube import Search
 from Backend.utils import check_permissions
+queue = []
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -66,10 +67,9 @@ class Music(commands.Cog):
         finally:
             sys.stderr = stderr
         
+# -------------- PLAYBACK ------------
     @commands.command(description='Play a song')
     async def play(self, ctx, query):
-        if not check_permissions(ctx.author):
-            return
         if ctx.author.voice:
             voice_channel = ctx.author.voice.channel
             try:
@@ -134,10 +134,9 @@ class Music(commands.Cog):
                     await voice_client.disconnect()
         else:
             await ctx.send('You need to be in a voice channel to use this command!')
+            
     @commands.command(description='Stop the music')
     async def stop(self, ctx):
-        if not check_permissions(ctx.author):
-            return
         if ctx.voice_client:
             ctx.voice_client.stop()
             await ctx.voice_client.disconnect(force=True)
@@ -146,19 +145,29 @@ class Music(commands.Cog):
 
     @commands.command(description='Pause the music')
     async def pause(self, ctx):
-        if not check_permissions(ctx.author):
-            return
         if ctx.voice_client and ctx.voice_client.is_playing():
             ctx.voice_client.pause()
             await ctx.send("🎵 Paused the music.")
     @commands.command(description='Resume the music')
     async def resume(self, ctx):
-        if not check_permissions(ctx.author):
-            return
         if ctx.voice_client and ctx.voice_client.is_paused():
             ctx.voice_client.resume()
             await ctx.send("🎵 Resumed the music.")
-
+    @commands.command(description='Add a song to the queue')
+    async def addq(self, ctx, query):
+        if ctx.voice_client:
+            if ctx.voice_client.is_playing():
+                await ctx.send("🎵 Adding to the queue...")
+                
+        else:
+            await ctx.send("🎵 I'm not connected to a voice channel.")
+    @commands.command(description='View the queue')
+    async def queue(self, ctx):
+        pass
+    @commands.command(description='Loop the queue')
+    async def loop(self, ctx):
+        pass
+    
             
 async def setup(bot):
     await bot.add_cog(Music(bot))
