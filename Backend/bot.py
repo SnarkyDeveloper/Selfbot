@@ -18,7 +18,6 @@ class CustomBot(commands.Bot):
                         ctx = await self.get_context(message)
                         try:
                             args = parts[1] if len(parts) > 1 else ''
-                            
                             if args:
                                 await command(ctx, args)
                             else:
