@@ -1,33 +1,22 @@
 import discord, asyncio, os, yt_dlp, glob, sys
 from discord.ext import commands
-from pytube import Search
+from ytmusicapi import YTMusic
 from Backend.utils import check_permissions
 queue = []
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
+        self.ytmusic = YTMusic()
     async def download_song(self, query):
         stderr = sys.stderr
         sys.stderr = open(os.devnull, 'w')
         
         try:
-            search_query = f"{query} (lyrics)"
-            s = Search(search_query)
-            if not s.results:
-                s = Search(query)
-                if not s.results:
-                    return None, "No results found."
-            
-            for result in s.results:
-                channel_name = result.author
-                if any(label in channel_name.lower() for label in [
-                    'vevo', 'official', 'records', 'music'
-                ]):
-                    video_id = result.video_id
-                    break
-            else:
-                video_id = s.results[0].video_id
+            search_query = f"{query}"
+            s = self.ytmusic.search(search_query)
+            if not s[0]:
+                return None, "No results found."
+            video_id = s[0]['videoId']
             
             current_dir = os.path.dirname(os.path.abspath(__file__))
             audio_dir = os.path.normpath(os.path.join(current_dir, '../../audio'))
@@ -134,25 +123,44 @@ class Music(commands.Cog):
                     await voice_client.disconnect()
         else:
             await ctx.send('You need to be in a voice channel to use this command!')
-            
+    async def check_if_vc(self, ctx):
+        voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
+        if voice_client:
+            return voice_client
+        else:
+            if ctx.author.voice and ctx.author.voice.channel:
+                for vc in self.bot.voice_clients:
+                    if vc.channel == ctx.author.voice.channel:
+                        return vc
+        return None
+
     @commands.command(description='Stop the music')
     async def stop(self, ctx):
-        if ctx.voice_client:
-            ctx.voice_client.stop()
-            await ctx.voice_client.disconnect(force=True)
+        voice_client = await self.check_if_vc(ctx)
+        if voice_client:
+            voice_client.stop()
+            await voice_client.disconnect(force=True)
+            await ctx.send("🎵 Stopped the music.")
         else:
             await ctx.send("No music is currently playing.")
 
     @commands.command(description='Pause the music')
     async def pause(self, ctx):
-        if ctx.voice_client and ctx.voice_client.is_playing():
-            ctx.voice_client.pause()
+        voice_client = await self.check_if_vc(ctx)
+        if voice_client and voice_client.is_playing():
+            voice_client.pause()
             await ctx.send("🎵 Paused the music.")
+        else:
+            await ctx.send("Nothing is playing right now.")
+
     @commands.command(description='Resume the music')
     async def resume(self, ctx):
-        if ctx.voice_client and ctx.voice_client.is_paused():
-            ctx.voice_client.resume()
+        voice_client = await self.check_if_vc(ctx)
+        if voice_client and voice_client.is_paused():
+            voice_client.resume()
             await ctx.send("🎵 Resumed the music.")
+        else:
+            await ctx.send("Nothing is paused right now.")
     @commands.command(description='Add a song to the queue')
     async def addq(self, ctx, query):
         if ctx.voice_client:
