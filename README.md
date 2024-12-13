@@ -1,6 +1,6 @@
 
 # Snarky's Selfbot
-![](https://tokei.rs/b1/github/SnarkyDeveloper/Selfbot) ![GitHub Repo stars](https://img.shields.io/github/stars/SnarkyDeveloper/Selfbot?style=flat)
+![Line Count](https://tokei.rs/b1/github/SnarkyDeveloper/Selfbot) ![GitHub Repo stars](https://img.shields.io/github/stars/SnarkyDeveloper/Selfbot?style=flat)
 
 This is my selfbot i made as a side project, it is probably going to stay maintained for a while.
 
