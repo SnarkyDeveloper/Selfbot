@@ -6,11 +6,12 @@ snipe = True
 music = True
 avatar = True
 quote = True
-ollama = True
+ollama = False
 reverse = True
 dictionary = True
 afk = True
 qotd = True
+lyrics = True
 #--------
 economy = True
 help = True
@@ -52,6 +53,9 @@ async def setup_cogs():
     if qotd:
         await bot.load_extension('Backend.Modules.qotd')
         loaded.append("Qotd")
+    if lyrics:
+        await bot.load_extension('Backend.Modules.lyrics')
+        loaded.append("Lyrics")
 # ----------------------Economy-------------------------------------
     if economy == True:
         print("Cogs loaded, loading economy module...")
