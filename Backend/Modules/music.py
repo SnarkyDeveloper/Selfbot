@@ -7,6 +7,8 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.ytmusic = YTMusic()
+        self.loop = False
+    
     async def download_song(self, query):
         stderr = sys.stderr
         sys.stderr = open(os.devnull, 'w')
@@ -44,7 +46,7 @@ class Music(commands.Cog):
                     print(f"Song already exists: {info['title']}")
             
             audio_files = glob.glob(os.path.join(audio_dir, '*.mp3'))
-            while len(audio_files) >= 30:
+            while len(audio_files) >= 30: #change as needed, storage is tight sometimes i know
                 oldest_file = min(audio_files, key=os.path.getctime)
                 os.remove(oldest_file)
                 audio_files = glob.glob(os.path.join(audio_dir, '*.mp3'))
@@ -109,13 +111,22 @@ class Music(commands.Cog):
                                 voice_client.stop()
                             await voice_client.disconnect()
                             break
-                            
+
+                    # Loop logic
                     if not voice_client.is_playing() and not voice_client.is_paused():
-                        print("Playback finished")
-                        await voice_client.disconnect()
-                        break
+                        if self.loop:
+                            print("Looping song...")
+                            audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  # Recreate audio source
+                            voice_client.play(audio_source)
+                            await ctx.send('🎵 Now playing...')
+                        else:
+                            print("Playback finished")
+                            await voice_client.disconnect()
+                            self.loop = False
+                            break
+
                     await asyncio.sleep(1)
-                    
+                                    
             except Exception as e:
                 print(f"Error: {str(e)}")
                 await ctx.send(f"Error: {str(e)}")
@@ -174,8 +185,13 @@ class Music(commands.Cog):
         pass
     @commands.command(description='Loop the queue')
     async def loop(self, ctx):
-        pass
-    
+        if self.loop:
+            self.loop = False
+            await ctx.send("🎵 Loop off.")
+        else:
+            self.loop = True
+            await ctx.send("🎵 Looping on.")
+        print(self.loop)
             
 async def setup(bot):
     await bot.add_cog(Music(bot))
