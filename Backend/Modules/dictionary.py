@@ -1,7 +1,6 @@
 import re
 from discord.ext import commands
 from Backend.utils import check_permissions
-from english_dictionary.scripts.read_pickle import get_dict
 from PyMultiDictionary import MultiDictionary
 dictionary = MultiDictionary()
 class Define(commands.Cog):

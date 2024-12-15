@@ -2,13 +2,14 @@ import discord
 from discord.ext import commands
 from Backend.utils import check_permissions, read_settings
 description = "Selfbot"
+prefix = read_settings()["main"]["prefix"]
 class CustomBot(commands.Bot):
     async def on_message(self, message):
         if message.author.bot:
             return
 
-        if message.content.startswith('>'):
-            if check_permissions(message.author) or message.content.startswith('>eco'):
+        if message.content.startswith(prefix):
+            if check_permissions(message.author) or message.content.startswith(f'{prefix}eco'):
                 try:
                     parts = message.content[1:].split(maxsplit=1)
                     command_name = parts[0]
