@@ -18,9 +18,9 @@ sleep 2
 @echo on
 if ollama list | grep -q "llama3.2:latest"; then
     source ./venv/bin/activate
-    ollama serve & python main.py 
+    nohup ollama serve > /dev/null & python main.py 
 else
     ollama pull llama3.2:latest 
     source ./venv/bin/activate
-    ollama serve & python main.py
+    nohup ollama serve > /dev/null & python main.py
 fi
