@@ -40,10 +40,10 @@ class Music(commands.Cog):
                 filename = ydl.prepare_filename(info).rsplit(".", 1)[0] + ".mp3"
                 
                 if not os.path.exists(filename):
-                    print(f"Downloading new song: {info['title']}")
+                    print(f"Downloading new song: {info['title']} by {info['uploader']}")
                     ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
                 else:
-                    print(f"Song already exists: {info['title']}")
+                    print(f"Song already exists: {info['title']} by {info['uploader']}")
             
             audio_files = glob.glob(os.path.join(audio_dir, '*.mp3'))
             while len(audio_files) >= 30: #change as needed, storage is tight sometimes i know
@@ -51,7 +51,7 @@ class Music(commands.Cog):
                 os.remove(oldest_file)
                 audio_files = glob.glob(os.path.join(audio_dir, '*.mp3'))
             
-            return filename, None
+            return info, None, filename
             
         except Exception as e:
             return None, str(e)
@@ -78,12 +78,13 @@ class Music(commands.Cog):
                 print("Connected to voice channel")
                 await ctx.send("🎵 Joined voice channel, Playing...")
                 
-                filename, error = await download_task
+                info, error, filename = await download_task
                 if error:
                     await voice_client.disconnect()
                     await ctx.send(f"Error: {error}")
                     return
-                
+                name = info['title']
+                author = info['uploader']
                 ffmpeg_options = {
                     'options': '-vn -b:a 128k -bufsize 64k -ar 48000',
                 }
@@ -94,7 +95,7 @@ class Music(commands.Cog):
                 
                 print("Starting playback...")
                 voice_client.play(audio_source)
-                await ctx.send('🎵 Now playing...')
+                await ctx.send(f'🎵 Now playing {name} by {author}...')
                 
                 while voice_client.is_connected():
                     if isinstance(voice_channel, discord.VoiceChannel):
@@ -118,7 +119,7 @@ class Music(commands.Cog):
                             print("Looping song...")
                             audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  # Recreate audio source
                             voice_client.play(audio_source)
-                            await ctx.send('🎵 Now playing...')
+                            await ctx.send(f'🎵 Now playing {name} by {author}...')
                         else:
                             print("Playback finished")
                             await voice_client.disconnect()

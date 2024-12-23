@@ -27,7 +27,10 @@ class Statistics(commands.Cog):
                 parts.append(f"{seconds} seconds")
             return ", ".join(parts)
         await ctx.send(f"`Uptime: {uptime(days, hours, minutes, seconds)}`\n`Total Users: {len(users)}`\n`Servers: {len(self.bot.guilds)}`\n`Project: github.com/SnarkyDeveloper/Selfbot (A star is much appreciated ⭐)`")
-        
+    @commands.command(description="Pong!")
+    async def ping(self, ctx):
+        ping = await ctx.send(f"Pong!")
+        await ping.edit(content=f"Ping: {round(self.bot.latency*1000)}ms")
 
 async def setup(bot):
     await bot.add_cog(Statistics(bot))
