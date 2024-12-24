@@ -14,6 +14,8 @@ qotd = True
 lyrics = True
 statistics = True
 polls = True
+github = True
+reactions = True
 #--------
 economy = True
 help = True
@@ -64,6 +66,12 @@ async def setup_cogs():
     if polls:
         await bot.load_extension('Backend.Modules.polls')
         loaded.append("Polls")
+    if github:
+        await bot.load_extension('Backend.Modules.github')
+        loaded.append("Github")
+    if reactions:
+        await bot.load_extension('Backend.Modules.reactions')
+        loaded.append("Reactions")
 # ----------------------Economy-------------------------------------
     if economy == True:
         print("Cogs loaded, loading economy module...")
