@@ -8,7 +8,7 @@ class Music(commands.Cog):
         self.bot = bot
         self.ytmusic = YTMusic()
         self.loop = False
-    
+        self.skip = False
     async def download_song(self, query):
         stderr = sys.stderr
         sys.stderr = open(os.devnull, 'w')
@@ -113,11 +113,27 @@ class Music(commands.Cog):
                             await voice_client.disconnect()
                             break
 
-                    # Loop logic
+                    # Song end logic
+                    if self.skip == True:
+                        self.skip = False
+                        if len(queue) > 0:
+                            filename, name, author = queue.pop(0)
+                            await ctx.send(f"🎵 Now playing {name} by {author}...")
+                            audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  
+                            voice_client.play(audio_source)
+                            if self.loop:
+                                queue.append((filename, name, author))
                     if not voice_client.is_playing() and not voice_client.is_paused():
-                        if self.loop:
+                        if len(queue) > 0:
+                            filename, name, author = queue.pop(0)
+                            await ctx.send(f"🎵 Now playing {name} by {author}...")
+                            audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  
+                            voice_client.play(audio_source)     
+                            if self.loop:
+                                queue.append((filename, name, author))
+                        elif self.loop:
                             print("Looping song...")
-                            audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  # Recreate audio source
+                            audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  
                             voice_client.play(audio_source)
                             await ctx.send(f'🎵 Now playing {name} by {author}...')
                         else:
@@ -139,6 +155,7 @@ class Music(commands.Cog):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client:
             return voice_client
+
         else:
             if ctx.author.voice and ctx.author.voice.channel:
                 for vc in self.bot.voice_clients:
@@ -174,11 +191,17 @@ class Music(commands.Cog):
         else:
             await ctx.send("Nothing is paused right now.")
     @commands.command(description='Add a song to the queue')
-    async def addq(self, ctx, query):
+    async def add(self, ctx, query):
         if ctx.voice_client:
             if ctx.voice_client.is_playing():
-                await ctx.send("🎵 Adding to the queue...")
-                
+                info, error, filename = await self.download_song(query)
+                if error:
+                    await ctx.send(f"Error: {error}")
+                    return
+                name = info['title']
+                author = info['uploader']
+                queue.append((filename, name, author))
+                await ctx.send(f"🎵 Added {name} by {author} to the queue.")
         else:
             await ctx.send("🎵 I'm not connected to a voice channel.")
     @commands.command(description='View the queue')
@@ -192,7 +215,14 @@ class Music(commands.Cog):
         else:
             self.loop = True
             await ctx.send("🎵 Looping on.")
-        print(self.loop)
-            
+    @commands.command(description='Skip the current song')
+    async def skip(self, ctx):
+        voice_client = await self.check_if_vc(ctx)
+        if voice_client and voice_client.is_playing():
+            voice_client.stop()
+            await ctx.send("🎵 Skipped the current song.")
+            self.skip = True
+        else:
+                await ctx.send("Nothing is playing right now.")
 async def setup(bot):
     await bot.add_cog(Music(bot))

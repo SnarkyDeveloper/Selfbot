@@ -7,7 +7,7 @@ class perms(commands.Cog):
         self.owner_id = int(read_settings()["main"]["owner_id"])
 
     @commands.command(description='Add a user to the allowed list')
-    async def add(self, ctx, user_mention: str):
+    async def adduser(self, ctx, user_mention: str):
         if int(ctx.author.id) == int(self.bot.user.id) or int(ctx.author.id) == self.owner_id:
             user_id = user_mention.strip('<@!>')
             users_data = read_users()
@@ -21,7 +21,7 @@ class perms(commands.Cog):
             await ctx.send("You are not allowed to use this command")
 
     @commands.command(description='Removes a user from allowed list')
-    async def remove(self, ctx, user_mention: str):
+    async def removeuser(self, ctx, user_mention: str):
         if int(ctx.author.id) == int(self.bot.user.id) or int(ctx.author.id) == self.owner_id:
             user_id = user_mention.strip('<@!>')
             users_data = read_users()
