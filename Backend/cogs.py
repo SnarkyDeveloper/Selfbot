@@ -17,6 +17,7 @@ polls = True
 github = True
 reactions = True
 tweet = True
+petpet = True
 #--------
 economy = True
 help = True
@@ -76,6 +77,9 @@ async def setup_cogs():
     if tweet:
         await bot.load_extension('Backend.Modules.tweet')
         loaded.append("Tweet")
+    if petpet:
+        await bot.load_extension('Backend.Modules.petpet') 
+        loaded.append("PetPet")
 # ----------------------Economy-------------------------------------
     if economy == True:
         print("Cogs loaded, loading economy module...")
