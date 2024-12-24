@@ -14,11 +14,9 @@ class Reactions(commands.Cog):
             else:
                 url = random.choice(self.sources)
             if url != 'https://purrbot.site/api/img/sfw':
-                print(f'Using source: {url}/{reaction}')
                 response = json.loads(httpx.get(f'{url}/{reaction}').text)
                 return response['url']
             else:
-                print(f'Using source: {url}/{reaction}/gif')
                 response = json.loads(httpx.get(f'{url}/{reaction}/gif').text)
                 return response['link']
         except:

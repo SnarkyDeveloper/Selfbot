@@ -120,7 +120,7 @@ class Quote(commands.Cog):
             author_y = start_y + (len(lines) * line_height) + line_height
             
             tag_x = img_width * 0.98 - draw.textlength(tag_text, font=small_font)
-            tag_y = author_y + font.size * 0.8
+            tag_y = author_y + font.size * 1.2
             
             draw.text((author_x, author_y), author_text, fill="white", font=font)
             draw.text((tag_x, tag_y), tag_text, fill="white", font=small_font)
