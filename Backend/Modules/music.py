@@ -9,6 +9,16 @@ class Music(commands.Cog):
         self.ytmusic = YTMusic()
         self.loop = False
         self.skip = False
+    async def search_yt(self, query):
+        search_query = f"{query}"
+        s = self.ytmusic.search(search_query)
+        if not s[0]:
+            return None, "No results found."
+        video_id = s[0]['videoId']
+        with yt_dlp.YoutubeDL() as ydl:
+            info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
+
+        return info, None
     async def download_song(self, query):
         stderr = sys.stderr
         sys.stderr = open(os.devnull, 'w')
@@ -125,6 +135,12 @@ class Music(commands.Cog):
                                 queue.append((filename, name, author))
                     if not voice_client.is_playing() and not voice_client.is_paused():
                         if len(queue) > 0:
+                            print("Downloading next song...")
+                            download_task = asyncio.create_task(self.download_song(queue[0][1]))
+                            info, error, filename = await download_task
+                            if error:
+                                await ctx.send(f"Error playing song: {error}")
+                                return
                             filename, name, author = queue.pop(0)
                             await ctx.send(f"🎵 Now playing {name} by {author}...")
                             audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  
@@ -194,19 +210,28 @@ class Music(commands.Cog):
     async def add(self, ctx, query):
         if ctx.voice_client:
             if ctx.voice_client.is_playing():
-                info, error, filename = await self.download_song(query)
+                info, error = await self.search_yt(query)
                 if error:
                     await ctx.send(f"Error: {error}")
                     return
                 name = info['title']
                 author = info['uploader']
-                queue.append((filename, name, author))
+                queue.append((query, name, author))  # Store the query instead of filename
                 await ctx.send(f"🎵 Added {name} by {author} to the queue.")
         else:
             await ctx.send("🎵 I'm not connected to a voice channel.")
+
     @commands.command(description='View the queue')
     async def queue(self, ctx):
-        pass
+        if not queue:
+            await ctx.send("🎵 Queue is empty!")
+            return
+        
+        queue_text = "🎵 Current Queue:\n"
+        for i, (name, author) in enumerate(queue, 1):
+            queue_text += f"{i}. {name} by {author}\n"
+        
+        await ctx.send(queue_text)
     @commands.command(description='Loop the queue')
     async def loop(self, ctx):
         if self.loop:

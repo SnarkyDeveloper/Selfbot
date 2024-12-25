@@ -3,18 +3,19 @@ import discord
 from main import start_time
 import time
 from Backend.utils import read_users
-users=read_users()['users']
 class Statistics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(description="Check the bot's uptime", aliases=['uptime', 'stats','info'])
     async def statistics(self, ctx):
+        commands = len(self.bot.commands)
+        users=read_users()['users']
         uptime_seconds = time.time() - start_time
-        days = int(uptime_seconds // (24 * 3600))  # Calculate days
-        hours = int((uptime_seconds % (24 * 3600)) // 3600)  # Calculate hours
-        minutes = int((uptime_seconds % 3600) // 60)  # Calculate minutes
-        seconds = int(uptime_seconds % 60)  # Calculate seconds
+        days = int(uptime_seconds // (24 * 3600))
+        hours = int((uptime_seconds % (24 * 3600)) // 3600)
+        minutes = int((uptime_seconds % 3600) // 60)
+        seconds = int(uptime_seconds % 60)
         def uptime(days, hours, minutes, seconds):
             parts = []
             if days:
@@ -26,7 +27,7 @@ class Statistics(commands.Cog):
             if seconds:
                 parts.append(f"{seconds} seconds")
             return ", ".join(parts)
-        await ctx.send(f"`Uptime: {uptime(days, hours, minutes, seconds)}`\n`Total Users: {len(users)}`\n`Servers: {len(self.bot.guilds)}`\n`Project: github.com/SnarkyDeveloper/Selfbot (A star is much appreciated ⭐)`")
+        await ctx.send(f"`Uptime: {uptime(days, hours, minutes, seconds)}`\n`Total Users: {len(users)}`\n`Servers: {len(self.bot.guilds)}`\n`Total Commands: {commands}`\n`Project: github.com/SnarkyDeveloper/Selfbot (A star is much appreciated ⭐)`")
     @commands.command(description="Pong!")
     async def ping(self, ctx):
         ping = await ctx.send(f"Pong!")

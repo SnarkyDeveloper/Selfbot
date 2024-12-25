@@ -48,7 +48,7 @@ class Afk(commands.Cog):
             afk_data = json.load(f)
 
         if str(message.author.id) in afk_data.get(str(message.guild.id), {}):
-            if not message.content.startswith('>afk'):
+            if not message.content.lower().startswith('>afk') and not message.content.lower().startswith('>brb'):
                 afk_time = round((time.time() * 1000 - afk_data[str(message.guild.id)][str(message.author.id)]['timestamp']) / 1000)
                 del afk_data[str(message.guild.id)][str(message.author.id)]
 
@@ -58,8 +58,8 @@ class Afk(commands.Cog):
                 minutes, seconds = divmod(afk_time, 60)
                 hours, minutes = divmod(minutes, 60)
 
-                await message.channel.send(f"Welcome back {message.author.mention}! You were AFK for {hours} hours, {minutes} minutes, and {seconds} seconds.")
-
+                deletable = await message.channel.send(f"Welcome back {message.author.mention}! You were AFK for {hours} hours, {minutes} minutes, and {seconds} seconds.")
+                await deletable.delete(delay=15)
         if message.mentions:
             for user in message.mentions:
                 if str(user.id) in afk_data.get(str(message.guild.id), {}):
