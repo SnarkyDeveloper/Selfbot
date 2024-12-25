@@ -5,7 +5,7 @@ import httpx
 from bs4 import BeautifulSoup
 import json
 import re
-from urllib.parse import quote, urlsplit, urlunsplit
+from urllib.parse import quote
 results = []
 sys.stdout.reconfigure(encoding='utf-8')
 def reverse_search(image_url):
