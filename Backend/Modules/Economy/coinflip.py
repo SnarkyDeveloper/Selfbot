@@ -12,7 +12,13 @@ class Coinflip(commands.Cog):
     @commands.command(description="Flip a coin", aliases=["cf"])
     async def coinflip_cmd(self, ctx, args):
         try:
-            # Split the args into bet and choice
+            if self.db.get_balance(ctx.author.id) < int(args):
+                await ctx.send("You don't have enough money to bet that amount.")
+                return
+
+            if not args:
+                await ctx.send("Please provide a bet amount.")
+                return
             parts = args.split()
             if len(parts) < 1:
                 await ctx.send("Please specify a bet amount! Usage: >eco coinflip <amount> [heads/tails]")

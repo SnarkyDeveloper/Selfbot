@@ -26,4 +26,6 @@ def check_permissions(bot, user):
     user_id = user.id if hasattr(user, 'id') else user
     if user_id == bot.user.id or user_id in [user["id"] for user in read_users()["users"]]:
         return True
+    if hasattr(user, 'guild') and user.guild.id in [guild["id"] for guild in read_users().get("guilds", [])]:
+        return True
     return False 

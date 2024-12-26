@@ -11,6 +11,13 @@ class Dice(commands.Cog):
     @commands.command(description="Roll dice")
     async def dice_cmd(self, ctx, args):
         try:
+            if self.db.get_balance(ctx.author.id) < int(args):
+                await ctx.send("You don't have enough money to bet that amount.")
+                return
+
+            if not args:
+                await ctx.send("Please provide a bet amount.")
+                return
             parts = args.split()
             if len(parts) < 2:
                 await ctx.send("Usage: >eco dice <bet> <number>\nGuess a number between 2-12")
@@ -23,7 +30,6 @@ class Dice(commands.Cog):
                 await ctx.send("Please choose a number between 2 and 12!")
                 return
                 
-            # Roll two dice
             dice1 = random.randint(1, 6)
             dice2 = random.randint(1, 6)
             total = dice1 + dice2

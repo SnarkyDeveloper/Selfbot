@@ -1,15 +1,29 @@
+#!/bin/bash
 source ./venv/bin/activate
+args="$@"
 
-# Start ollama in background and redirect output to temp file
-ollama serve > /tmp/ollama.log 2>&1 &
+if [ -z "$args" ]; then
+    pip install -r requirements.txt -q -q -q --exists-action i
+fi
 
-# Wait a moment for ollama to start
+if [ "$args" == "--verbose" ]; then
+    pip install -r requirements.txt --exists-action i
+fi
+
+if [ "$args" == "--no-pip" ]; then
+    echo "Skipping installation..."
+fi
+nohup ollama serve > /dev/null 
 sleep 2
-
-# Check if model exists and start python script
+@echo on
 if ollama list | grep -q "llama3.2:latest"; then
-    python main.py
+    source ./venv/bin/activate
+    python main.py 
 else
-    ollama pull llama:3.2s
+    ollama pull llama3.2:latest 
+    source ./venv/bin/activate
     python main.py
 fi
+
+# Obama
+# - Typera, 2024

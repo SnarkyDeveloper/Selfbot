@@ -7,7 +7,12 @@ import concurrent.futures
 from diffusers import StableDiffusionPipeline
 import os
 import torch
-async def loading(ctx, interval=0.5, type="text"): #Anything less than 0.5 seconds will cause rate limiting.
+from torch.amp import autocast
+
+torch.backends.cudnn.benchmark = True
+torch.backends.cudnn.enabled = True
+
+async def loading(ctx, interval=0.5, type="text"):
     if type == "image":
         x = await ctx.send("Generating image... This may take a while. You'll be notified when it's done.")
     else:
@@ -22,22 +27,27 @@ async def loading(ctx, interval=0.5, type="text"): #Anything less than 0.5 secon
     finally:
         await x.delete()
         await load.delete()
+
 class Ollama(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.pipeline = StableDiffusionPipeline.from_pretrained(
             "stabilityai/stable-diffusion-2-1",
             torch_dtype=torch.float16
-        ).to("cuda") 
+        )
         
+        self.pipeline.enable_model_cpu_offload()
+        self.pipeline.enable_vae_slicing()
+        torch.cuda.empty_cache()
+
     @commands.command(description="Ask an AI a question")
     async def ask(self, ctx, question):
         loading_message = await ctx.send("Generating response...")
         load_symbol = await ctx.send("**↺**")
         
         try:
-            # Start loading animation
             while_loading = True
+
             async def animate_loading():
                 while while_loading:
                     await load_symbol.edit(content="**↺**")
@@ -58,49 +68,53 @@ class Ollama(commands.Cog):
                     )
                 )
                 
-                # Stop and cleanup loading messages
                 while_loading = False
                 await loading_task
                 await loading_message.delete()
                 await load_symbol.delete()
                 
-                # Initialize message
-                message = await ctx.send("_ _")
-                
-                # Stream the response
                 full_response = ""
+                current_message = await ctx.send("_ _")
+                
                 for chunk in response:
                     if chunk and 'message' in chunk and 'content' in chunk['message']:
                         content = chunk['message']['content']
                         full_response += content
                         
-                        if len(full_response) % 250 < len(content):
+                        if len(full_response) >= 1900:
                             try:
-                                await message.edit(content=full_response)
+                                await current_message.edit(content=full_response)
+                                full_response = ""
+                                current_message = await ctx.send("_ _")
                             except discord.HTTPException:
-                                message = await ctx.send(full_response)
+                                current_message = await ctx.send(full_response)
+                                full_response = ""
+                        elif len(full_response) % 250 < len(content):
+                            try:
+                                await current_message.edit(content=full_response)
+                            except discord.HTTPException:
+                                current_message = await ctx.send(full_response)
                                 full_response = ""
                 
-                # Final update if needed
                 if full_response:
                     try:
-                        await message.edit(content=full_response)
+                        await current_message.edit(content=full_response)
                     except discord.HTTPException:
-                        await ctx.send(full_response)
-                        
+                        await ctx.send(full_response)        
         except Exception as e:
             while_loading = False
             await loading_message.delete()
             await load_symbol.delete()
             await ctx.send(f"An error occurred: {str(e)}")
+
     @commands.command(description="Generate an image", aliases=["img", "imagine"])
     async def generate(self, ctx, prompt):
         loading_message = await ctx.send("Generating image... This may take a while. You'll be notified when it's done.")
         load_symbol = await ctx.send("**↺**")
         
         try:
-            # Start loading animation
             while_loading = True
+
             async def animate_loading():
                 while while_loading:
                     await load_symbol.edit(content="**↺**")
@@ -112,15 +126,18 @@ class Ollama(commands.Cog):
             loading_task = asyncio.create_task(animate_loading())
             
             with concurrent.futures.ThreadPoolExecutor() as pool:
-                image = await asyncio.get_event_loop().run_in_executor(
-                    pool,
-                    lambda: self.pipeline(
-                        prompt,
-                        num_inference_steps=30
-                    ).images[0]
-                )
-                
-                # Stop and cleanup loading messages
+                try:
+                    with autocast('cuda'):
+                        image = await asyncio.get_event_loop().run_in_executor(
+                            pool,
+                            lambda: self.pipeline(
+                                prompt,
+                                num_inference_steps=15
+                            ).images[0]
+                        )
+                except torch.cuda.OutOfMemoryError:
+                    print("Not enough GPU memory. Trying CPU fallback.")
+                    self.pipeline.to('cpu')
                 while_loading = False
                 await loading_task
                 await loading_message.delete()
@@ -130,11 +147,13 @@ class Ollama(commands.Cog):
                 message = await ctx.send(file=discord.File(f'{ctx.author.id}.png'))
                 await message.reply(f'{prompt} | Generated by {ctx.author.mention}')
                 os.remove(f'{ctx.author.id}.png')
+                torch.cuda.empty_cache()
                 
         except Exception as e:
             while_loading = False
             await loading_message.delete()
             await load_symbol.delete()
             await ctx.send(f"An error occurred: {str(e)}")
+
 async def setup(bot):
     await bot.add_cog(Ollama(bot))

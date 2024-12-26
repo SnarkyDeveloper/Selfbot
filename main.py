@@ -1,9 +1,5 @@
-import base64
-import dotenv
-import os
-import asyncio
-import json
-from Backend.bot import bot
+import base64, time, dotenv, os, asyncio, json
+from Backend.bot import bot 
 from Backend.groups import *
 from Backend.cogs import setup_cogs
 from Backend.events import setup_events
@@ -11,6 +7,7 @@ from Backend.logger import logger
 dotenv.load_dotenv()
 token = base64.b64decode(os.getenv("token")).decode("utf-8")
 setup_events()
+start_time = time.time()
 async def setup_groups():
     bot.eco = eco
 async def main():

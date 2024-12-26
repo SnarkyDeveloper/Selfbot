@@ -20,12 +20,17 @@ class Slots(commands.Cog):
     @commands.command(description="Play slots")
     async def slots_cmd(self, ctx, args):
         try:
+            if self.db.get_balance(ctx.author.id) < int(args):
+                await ctx.send("You don't have enough money to bet that amount.")
+                return
+
+            if not args:
+                await ctx.send("Please provide a bet amount.")
+                return
             bet = int(args)
             
-            # Generate results
             results = [random.choice(self.symbols) for _ in range(3)]
             
-            # Check for wins
             if all(x == results[0] for x in results):
                 winnings = bet * self.payouts[results[0]]
                 self.db.add_balance(ctx.author.id, winnings)
