@@ -1,0 +1,17 @@
+{
+    "version": "1.2.1",
+    "main": {
+        "prefix": "!",
+        "appearance": "discord.Status.dnd",
+        "status": "Bot online!",
+        "owner_id": "",
+        "first_run": "True"
+    },
+    "spotify": {
+        "redirect_uri": ""
+    }, 
+    "notes": {
+        "note1": "Make sure to put the token in .env encoded in base64",
+        "note2": "Ensure the redirect_uri ends with /code in the panel but omit it here"
+    }
+}
