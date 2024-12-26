@@ -172,4 +172,5 @@ test.py
 /data/*
 .vscode/settings.json
 .VSCodeCounter/*
-mysettings.json
+settings.json
+examplesettings.json

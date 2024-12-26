@@ -1,7 +1,12 @@
 import os
 import json
 path = os.path.dirname(os.path.abspath(__file__))
-if json.load(open(f'{path}/settings.json')).get('main').get('first_run') == 'True':
+def get_run():
+    with open(f'{path}/settings.json', 'r') as f:
+        data = json.load(f)
+        f.close()
+    return data.get('main').get('first_run')
+if get_run() == 'True':
     def create_users():
         try:
             os.makedirs(f'{path}/data/users', exist_ok=True)
@@ -66,7 +71,7 @@ if json.load(open(f'{path}/settings.json')).get('main').get('first_run') == 'Tru
         try:
             with open(f'{path}/settings.json', 'w') as f:
                 data = json.loads(f)
-                data.get('main').get('first_run') = "False"
+                data.update({'main': {'first_run': 'False'}})
                 json.dump(data, f, indent=4)
                 f.close()
         except Exception as e:
