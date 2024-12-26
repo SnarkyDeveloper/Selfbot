@@ -67,7 +67,6 @@ class Quote(commands.Cog):
             text_area_width = img_width * 0.6
             text_area_height = img_height * 0.7
             
-            # Get avatar with fallback
             if message.author.avatar:
                 avatar_data = await message.author.avatar.read()
                 avatar_image = Image.open(BytesIO(avatar_data))
@@ -99,10 +98,10 @@ class Quote(commands.Cog):
             text_area_width = img_width * 0.6
             text_area_height = img_height * 0.6
             
-            font = get_optimal_font_size(message.content, text_area_width, text_area_height)
+            font = get_optimal_font_size(message.content.encode("ascii", errors="ignore").decode(), text_area_width, text_area_height)
             small_font = ImageFont.truetype(f"{path}/font.otf", int(font.size * 0.7))
             
-            lines = wrap_text(message.content, font, text_area_width)
+            lines = wrap_text(message.content.encode("ascii", errors="ignore").decode(), font, text_area_width)
             
             line_height = font.size * 1.2
             total_height = len(lines) * line_height

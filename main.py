@@ -1,5 +1,5 @@
 import base64, time, dotenv, os, asyncio, json
-from Backend.bot import bot
+from Backend.bot import bot 
 from Backend.groups import *
 from Backend.cogs import setup_cogs
 from Backend.events import setup_events
