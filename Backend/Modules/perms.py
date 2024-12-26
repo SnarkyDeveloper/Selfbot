@@ -1,5 +1,5 @@
 from discord.ext import commands
-from Backend.utils import check_permissions, read_users, write_users, read_settings
+from Backend.utils import read_users, write_users, read_settings
 
 class perms(commands.Cog):
     def __init__(self, bot):
@@ -35,9 +35,8 @@ class perms(commands.Cog):
             else:
                 await ctx.send(f'User not whitelisted!')
         else:
-            if not check_permissions(ctx.author):
-                await ctx.send("You are not allowed to use this command")
-                return
+            await ctx.send("You are not allowed to use this command")
+            return
     @commands.command(description='Whitelists entire server')
     async def addserver(self, ctx):
         if int(ctx.author.id) == int(self.bot.user.id) or int(ctx.author.id) == self.owner_id:
