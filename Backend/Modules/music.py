@@ -1,7 +1,6 @@
 import discord, asyncio, os, yt_dlp, glob, sys
 from discord.ext import commands
 from ytmusicapi import YTMusic
-from Backend.utils import check_permissions
 queue = []
 class Music(commands.Cog):
     def __init__(self, bot):

@@ -1,6 +1,6 @@
 import random
 from discord.ext import commands
-from Backend.utils import check_permissions, read_messages, write_messages
+from Backend.utils import read_messages, write_messages
 
 class Snipe(commands.Cog):
     def __init__(self, bot):
@@ -13,9 +13,6 @@ class Snipe(commands.Cog):
             position = int(position)
         except ValueError:
             await ctx.send("Please provide a valid number for position")
-            return
-            
-        if not check_permissions(ctx.author):
             return
             
         messages_data = read_messages()
@@ -48,8 +45,6 @@ class Snipe(commands.Cog):
             await ctx.send("Please provide a valid number for position")
             return
             
-        if not check_permissions(ctx.author):
-            return
             
         messages_data = read_messages()
         if len(messages_data["messages"]) > 0:
@@ -76,13 +71,10 @@ class Snipe(commands.Cog):
     async def clearsnipe(self, ctx, *, args=None):
         if args:
             return
-        if check_permissions(ctx.author):
-            messages_data = read_messages()
-            messages_data["messages"] = []
-            write_messages(messages_data)
-            await ctx.send("Snipe cache cleared")
-        else:
-            pass
+        messages_data = read_messages()
+        messages_data["messages"] = []
+        write_messages(messages_data)
+        await ctx.send("Snipe cache cleared")
 
 async def setup(bot):
     await bot.add_cog(Snipe(bot))

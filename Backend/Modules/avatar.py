@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import asyncio
-from Backend.utils import check_permissions
 
 class Avatar(commands.Cog):
     def __init__(self, bot):
@@ -9,8 +8,6 @@ class Avatar(commands.Cog):
 
     @commands.command(name="avatar", description="Get the avatar of a user", aliases=["av"])
     async def avatar(self, ctx, user: discord.Member = None):
-        if not check_permissions(ctx.author):
-            return
 
         member = user or ctx.author
         avatar_url = member.display_avatar.url
@@ -18,8 +15,6 @@ class Avatar(commands.Cog):
 
     @commands.command(name="avatar_server", description="Get the avatar of the server", aliases=["as"])
     async def avatar_server(self, ctx):
-        if not check_permissions(ctx.author):
-            return
 
         guild_avatar = ctx.author.guild_avatar
         if guild_avatar:

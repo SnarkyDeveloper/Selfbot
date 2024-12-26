@@ -3,15 +3,12 @@ from discord.ext import commands
 from PIL import Image, ImageFont, ImageDraw
 import os
 from io import BytesIO
-from Backend.utils import check_permissions
 path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'assets', 'quote')
 class Quote(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     @commands.command(name="quote", description="Quote a message", aliases=["q"])
     async def quote(self, ctx, message_id: int = None, mode: str = "black"):
-        if not check_permissions(ctx.author):
-            return
             
         if message_id is None:
             if ctx.message.reference:
