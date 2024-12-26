@@ -68,6 +68,8 @@ Configure your settings
     Just add your desired settings in settings.json
 ```
 
+Rename settings.example.json to settings.json and add your desired settings
+
 Start the bot
 
 ```bash

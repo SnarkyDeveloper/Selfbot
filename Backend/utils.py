@@ -26,15 +26,6 @@ def write_users(data):
     with open(f'{path}/data/users/users.json', 'w') as file:
         json.dump(data, file, indent=4)
 
-def check_permissions(user):
-    user_id = user.id if hasattr(user, 'id') else user
-    user_id_str = str(user_id)
-    allowed_ids = [str(user["id"]) for user in read_users()["users"]]
-    
-    if user_id_str in allowed_ids:
-        return True
-    return False
-
 def read_messages():
     try:
         with open(f'{path}/data/messages/messages.json', 'r', encoding='utf-8') as file:

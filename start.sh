@@ -13,7 +13,8 @@ fi
 if [ "$args" == "--no-pip" ]; then
     echo "Skipping installation..."
 fi
-nohup ollama serve > /dev/null 
+nohup ollama serve > /dev/null &
+echo "Server started..."
 sleep 2
 @echo on
 if ollama list | grep -q "llama3.2:latest"; then
