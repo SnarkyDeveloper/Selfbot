@@ -17,8 +17,10 @@ class PetPet(commands.Cog):
         if response.status_code == 200:
             with open(f'petpet_{user.id}.gif', 'wb') as f:
                 f.write(response.content)
-            await ctx.send(file=discord.File(f'petpet_{user.id}.gif'))
-            os.remove(f'petpet_{user.id}.gif')
+            try:
+                await ctx.send(file=discord.File(f'petpet_{user.id}.gif'))
+            finally:
+                os.remove(f'petpet_{user.id}.gif')
         else:
             await ctx.send('Failed to generate petpet image.')
 

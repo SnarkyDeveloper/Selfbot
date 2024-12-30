@@ -3,10 +3,12 @@ source ./venv/bin/activate
 args="$@"
 
 if [ -z "$args" ]; then
+    source ./venv/bin/activate
     pip install -r requirements.txt -q -q -q --exists-action i
 fi
 
 if [ "$args" == "--verbose" ]; then
+    source ./venv/bin/activate
     pip install -r requirements.txt --exists-action i
 fi
 

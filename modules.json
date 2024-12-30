@@ -21,6 +21,7 @@
         "petpet": true,
         "stealer": true,
         "help": true,
-        "economy": true
+        "economy": true,
+        "timezone": true
     }
 }

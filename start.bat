@@ -5,9 +5,11 @@ if "%args%"=="" (
 
 @echo off
 if "%args%"=="--no-args" (
+    call .\venv\Scripts\activate.bat
     python -m pip install -r requirements.txt -q -q -q --exists-action i
 )
 if "%args%"=="--verbose" (
+    call .\venv\Scripts\activate.bat
     python -m pip install -r requirements.txt --exists-action i
 )
 if "%args%"=="--no-pip" (

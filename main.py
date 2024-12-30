@@ -1,4 +1,6 @@
 import base64, time, dotenv, os, asyncio, json
+if not os.path.exists("data"):
+    os.system('python create_data.py')
 from Backend.bot import bot 
 from Backend.groups import *
 from Backend.cogs import setup_cogs

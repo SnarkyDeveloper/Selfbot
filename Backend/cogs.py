@@ -7,6 +7,7 @@ with open('modules.json') as f:
 loaded = []
 
 async def setup_cogs():
+    await bot.load_extension('Backend.Modules.setup')
     for module, enabled in modules['loaded'].items():
         if enabled:
             if module == 'economy':

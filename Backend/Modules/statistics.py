@@ -28,10 +28,16 @@ class Statistics(commands.Cog):
             if seconds:
                 parts.append(f"{seconds} seconds")
             return ", ".join(parts)
-        await send(self.bot, ctx, title="Statistics", content=f"Uptime: {uptime(days, hours, minutes, seconds)}\nTotal Users: {len(users)}\nServers: {len(self.bot.guilds)}\nTotal Commands: {commands}\nProject: github.com/SnarkyDeveloper/Selfbot (Pleaes star ⭐)")
+        await send(self.bot, ctx, title="Statistics", content=f"Uptime: {uptime(days, hours, minutes, seconds)}\nTotal Users: {len(users)}\nServers: {len(self.bot.guilds)}\nTotal Commands: {commands}\nProject: github.com/SnarkyDeveloper/Selfbot (Please star ⭐)")
     @commands.command(description="Pong!")
     async def ping(self, ctx):
-        await send(self.bot, ctx, title='Pong!', content=f'Latency: {self.bot.latency * 1000:.2f} ms')
+        latency = round(self.bot.latency * 1000, 2)
+        if latency < 150:
+            await send(self.bot, ctx, title='Pong!', content=f'Latency: {latency} ms', color=0x2ECC71)
+        elif latency < 500:
+            await send(self.bot, ctx, title='Pong!', content=f'Latency: {latency} ms', color=0xFEE75C)
+        else:
+            await send(self.bot, ctx, title='Pong!', content=f'Latency: {latency} ms', color=0xE74C3C)
 
 async def setup(bot):
     await bot.add_cog(Statistics(bot))

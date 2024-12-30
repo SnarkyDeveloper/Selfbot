@@ -123,8 +123,11 @@ class Quote(commands.Cog):
             draw.text((tag_x, tag_y), tag_text, fill="white", font=small_font)
             
             image.save(f"{path}/output.png")
-            await send(self.bot, ctx, title=f"Quote by {author_name}", image=discord.File(f"{path}/output.png"))
-            os.remove(f"{path}/output.png")
+            try:
+                await send(self.bot, ctx, title=f"Quote by {author_name}", image=f"{path}/output.png")
+            finally:
+                if os.path.exists(f"{path}/output.png"):
+                    os.remove(f"{path}/output.png")
         except discord.NotFound:
             await ctx.send("Message not found")
         except Exception as e:

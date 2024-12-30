@@ -6,8 +6,9 @@ class Help(commands.Cog):
         self.bot = bot
 
     @commands.command(name='help', description="Shows this message")
-    async def help_command(self, ctx, page: int = 1):
+    async def help_command(self, ctx, page = 1):
         try:
+            page = int(page)
             commands_list = [f"`{command.name}`: {command.description}" for command in self.bot.commands]
             end = page * 10
             start = end - 10
@@ -16,7 +17,7 @@ class Help(commands.Cog):
             await send(self.bot, ctx, title=f'Help Page {page}', content=response)
         except Exception as e:
             print(f"Error in help command: {e}")
-            
+
 async def setup(bot):
     await bot.add_cog(Help(bot))
 
