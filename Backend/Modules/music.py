@@ -1,6 +1,7 @@
 import discord, asyncio, os, yt_dlp, glob, sys
 from discord.ext import commands
 from ytmusicapi import YTMusic
+from Backend.send import send
 queue = []
 class Music(commands.Cog):
     def __init__(self, bot):
@@ -79,24 +80,25 @@ class Music(commands.Cog):
                         print("Force disconnecting from voice...")
                         await vc.disconnect(force=True)
                 
-                await ctx.send(f"🔍 Searching for: {query}")
+                await send(self.bot, ctx, title='🔍 Searching', content=f"Searching for: {query}", color=0xFEE75C)
                 download_task = asyncio.create_task(self.download_song(query))
                 
                 print(f"Connecting to channel: {voice_channel}")
                 voice_client = await voice_channel.connect()
                 print("Connected to voice channel")
-                await ctx.send("🎵 Joined voice channel, Playing...")
+                await send(self.bot, ctx, title='Joined', content="🎵 Joined voice channel, Playing...")
                 
                 info, error, filename = await download_task
                 if error:
                     await voice_client.disconnect()
-                    await ctx.send(f"Error: {error}")
+                    await send(self.bot, ctx, title='Error', content=f"Error: {error}", color=0xff0000)
                     return
                 name = info['title']
                 author = info['uploader']
                 ffmpeg_options = {
-                    'options': '-vn -b:a 128k -bufsize 64k -ar 48000',
+                    'options': '-vn -b:a 128k -bufsize 64k -ar 48000 -filter:a "loudnorm, volume=2.0"',
                 }
+
                 
                 print("Creating audio source...")
                 audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)
@@ -104,7 +106,7 @@ class Music(commands.Cog):
                 
                 print("Starting playback...")
                 voice_client.play(audio_source)
-                await ctx.send(f'🎵 Now playing {name} by {author}...')
+                await send(self.bot, ctx, title='Now playing', content=f'🎵 Playing {name} by {author}...', color=0x2ECC71)
                 
                 while voice_client.is_connected():
                     if isinstance(voice_channel, discord.VoiceChannel):
@@ -127,7 +129,7 @@ class Music(commands.Cog):
                         self.skip = False
                         if len(queue) > 0:
                             filename, name, author = queue.pop(0)
-                            await ctx.send(f"🎵 Now playing {name} by {author}...")
+                            await send(self.bot, ctx, title='Now playing', content=f'🎵 Playing {name} by {author}...', color=0x2ECC71)
                             audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  
                             voice_client.play(audio_source)
                             if self.loop:
@@ -138,10 +140,10 @@ class Music(commands.Cog):
                             download_task = asyncio.create_task(self.download_song(queue[0][1]))
                             info, error, filename = await download_task
                             if error:
-                                await ctx.send(f"Error playing song: {error}")
+                                await send(self.bot, ctx, title='Error', content=f"Error playing song: {error}", color=0xff0000)
                                 return
                             filename, name, author = queue.pop(0)
-                            await ctx.send(f"🎵 Now playing {name} by {author}...")
+                            await send(self.bot, ctx, title='Now playing', content=f'🎵 Playing {name} by {author}...', color=0x2ECC71)
                             audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  
                             voice_client.play(audio_source)     
                             if self.loop:
@@ -150,7 +152,7 @@ class Music(commands.Cog):
                             print("Looping song...")
                             audio_source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)  
                             voice_client.play(audio_source)
-                            await ctx.send(f'🎵 Now playing {name} by {author}...')
+                            await send(self.bot, ctx, title='Now playing', content=f'🎵 Playing {name} by {author}...', color=0x2ECC71)
                         else:
                             print("Playback finished")
                             await voice_client.disconnect()
@@ -161,11 +163,11 @@ class Music(commands.Cog):
                                     
             except Exception as e:
                 print(f"Error: {str(e)}")
-                await ctx.send(f"Error: {str(e)}")
+                await send(self.bot, ctx, title='Error', content=f"Error: {str(e)}", color=0xff0000)
                 if 'voice_client' in locals() and voice_client.is_connected():
                     await voice_client.disconnect()
         else:
-            await ctx.send('You need to be in a voice channel to use this command!')
+            await send(self.bot, ctx, title='Error', content='You need to be in a voice channel to use this command!', color=0xff0000)
     async def check_if_vc(self, ctx):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client:
@@ -184,69 +186,69 @@ class Music(commands.Cog):
         if voice_client:
             voice_client.stop()
             await voice_client.disconnect(force=True)
-            await ctx.send("🎵 Stopped the music.")
+            await send(self.bot, ctx, title='Stopped', content="🎵 Stopped the music.", color=0xE74C3C)
         else:
-            await ctx.send("No music is currently playing.")
+            await send(self.bot, ctx, title='Error', content="You need to be in a voice channel to use this command.", color=0xff0000)
 
     @commands.command(description='Pause the music')
     async def pause(self, ctx):
         voice_client = await self.check_if_vc(ctx)
         if voice_client and voice_client.is_playing():
             voice_client.pause()
-            await ctx.send("🎵 Paused the music.")
+            await send(self.bot, ctx, title='Paused', content="🎵 Paused the music.", color=0xFEE75C)
         else:
-            await ctx.send("Nothing is playing right now.")
+            await send(self.bot, ctx, title='Error', content="Nothing is playing right now.", color=0xff0000)
 
     @commands.command(description='Resume the music')
     async def resume(self, ctx):
         voice_client = await self.check_if_vc(ctx)
         if voice_client and voice_client.is_paused():
             voice_client.resume()
-            await ctx.send("🎵 Resumed the music.")
+            await send(self.bot, ctx, title='Resumed', content="🎵 Resumed the music.", color=0x2ECC71)
         else:
-            await ctx.send("Nothing is paused right now.")
+            await send(self.bot, ctx, title='Error', content="Nothing is paused right now.", color=0xff0000)
     @commands.command(description='Add a song to the queue')
     async def add(self, ctx, query):
         if ctx.voice_client:
             if ctx.voice_client.is_playing():
                 info, error = await self.search_yt(query)
                 if error:
-                    await ctx.send(f"Error: {error}")
+                    await send(self.bot, ctx, title='Error', content=f"Error: {error}", color=0xff0000)
                     return
                 name = info['title']
                 author = info['uploader']
-                queue.append((query, name, author))  # Store the query instead of filename
-                await ctx.send(f"🎵 Added {name} by {author} to the queue.")
+                queue.append((query, name, author))
+                await send(self.bot, ctx, title='Added to queue', content=f'🎵 Added {name} by {author} to queue.', color=0x2ECC71)
         else:
-            await ctx.send("🎵 I'm not connected to a voice channel.")
+            await send(self.bot, ctx, title='Error', content="🎵 I'm not connected to a voice channel.", color=0xff0000)
 
     @commands.command(description='View the queue')
     async def queue(self, ctx):
         if not queue:
-            await ctx.send("🎵 Queue is empty!")
+            await send(self.bot, ctx, title='Error', content="🎵 Queue is empty!", color=0xff0000)
             return
         
-        queue_text = "🎵 Current Queue:\n"
+        queue_text = ''
         for i, (name, author) in enumerate(queue, 1):
             queue_text += f"{i}. {name} by {author}\n"
         
-        await ctx.send(queue_text)
+        await send(self.bot, ctx, title='Current Queue 🎵', content=queue_text, color=0x2ECC71)
     @commands.command(description='Loop the queue')
     async def loop(self, ctx):
         if self.loop:
             self.loop = False
-            await ctx.send("🎵 Loop off.")
+            await send(self.bot, ctx, title='Loop off', content="🎵 Loop off.", color=0xE74C3C)
         else:
             self.loop = True
-            await ctx.send("🎵 Looping on.")
+            await send(self.bot, ctx, title='Looping', content="🎵 Looping on.", color=0x2ECC71)
     @commands.command(description='Skip the current song')
     async def skip(self, ctx):
         voice_client = await self.check_if_vc(ctx)
         if voice_client and voice_client.is_playing():
             voice_client.stop()
-            await ctx.send("🎵 Skipped the current song.")
+            await send(self.bot, ctx, title='Skipped', content="🎵 Skipped the current song.", color=0xE74C3C)
             self.skip = True
         else:
-                await ctx.send("Nothing is playing right now.")
+                await send(self.bot, ctx, title='Error', content="Nothing is playing right now.", color=0xff0000)
 async def setup(bot):
     await bot.add_cog(Music(bot))

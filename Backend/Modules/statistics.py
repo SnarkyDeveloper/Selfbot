@@ -3,6 +3,7 @@ import discord
 from main import start_time
 import time
 from Backend.utils import read_users
+from Backend.send import send
 class Statistics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -27,11 +28,10 @@ class Statistics(commands.Cog):
             if seconds:
                 parts.append(f"{seconds} seconds")
             return ", ".join(parts)
-        await ctx.send(f"`Uptime: {uptime(days, hours, minutes, seconds)}`\n`Total Users: {len(users)}`\n`Servers: {len(self.bot.guilds)}`\n`Total Commands: {commands}`\n`Project: github.com/SnarkyDeveloper/Selfbot (A star is much appreciated ⭐)`")
+        await send(self.bot, ctx, title="Statistics", content=f"Uptime: {uptime(days, hours, minutes, seconds)}\nTotal Users: {len(users)}\nServers: {len(self.bot.guilds)}\nTotal Commands: {commands}\nProject: github.com/SnarkyDeveloper/Selfbot (Pleaes star ⭐)")
     @commands.command(description="Pong!")
     async def ping(self, ctx):
-        ping = await ctx.send(f"Pong!")
-        await ping.edit(content=f"Ping: {round(self.bot.latency*1000)}ms")
+        await send(self.bot, ctx, title='Pong!', content=f'Latency: {self.bot.latency * 1000:.2f} ms')
 
 async def setup(bot):
     await bot.add_cog(Statistics(bot))

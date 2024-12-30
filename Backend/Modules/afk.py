@@ -2,7 +2,7 @@ import json
 from discord.ext import commands
 import os
 import time
-
+from Backend.send import send
 path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
 try:
@@ -36,8 +36,7 @@ class Afk(commands.Cog):
 
         with open(f'{path}/data/users/afk.json', 'w') as f:
             json.dump(afk_data, f)
-
-        await ctx.send(f'{ctx.author.display_name} is now AFK: {reason}')
+        await send(self.bot, ctx, title='AFK', content=f'{ctx.author.mention} is now AFK: {reason}', color=0x2ECC71)
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -58,13 +57,13 @@ class Afk(commands.Cog):
                 minutes, seconds = divmod(afk_time, 60)
                 hours, minutes = divmod(minutes, 60)
 
-                deletable = await message.channel.send(f"Welcome back {message.author.mention}! You were AFK for {hours} hours, {minutes} minutes, and {seconds} seconds.")
+                deletable = await send(self.bot, message, title='AFK', content=f"Welcome back {message.author.mention}! You were AFK for {hours} hours, {minutes} minutes, and {seconds} seconds.")
                 await deletable.delete(delay=15)
         if message.mentions:
             for user in message.mentions:
                 if str(user.id) in afk_data.get(str(message.guild.id), {}):
                     reason = afk_data[str(message.guild.id)][str(user.id)]['reason']
-                    await message.channel.send(f"{user.name} is AFK with reason: {reason}")
+                    await send(self.bot, message, title='AFK', content=f"{user.name} is AFK with reason: {reason}")
 
 async def setup(bot):
     await bot.add_cog(Afk(bot))

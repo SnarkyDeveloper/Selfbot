@@ -12,7 +12,7 @@ charset-normalizer==3.4.0
 colorama==0.4.6
 diffusers==0.31.0
 discord-protos==0.0.2
-discord.py-self==2.0.0
+discord.py-self @ git+https://github.com/dolfies/discord.py-self.git
 exceptiongroup==1.2.2
 filelock==3.16.1
 frozenlist==1.5.0
@@ -57,3 +57,4 @@ zipp==3.21.0
 PyMultiDictionary == 1.2.5
 PyNaCl==1.5.0
 lyrical==1.1.1
+discordwebhook.py==1.1.2

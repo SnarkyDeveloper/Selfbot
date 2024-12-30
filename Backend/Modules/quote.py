@@ -3,6 +3,7 @@ from discord.ext import commands
 from PIL import Image, ImageFont, ImageDraw
 import os
 from io import BytesIO
+from Backend.send import send
 path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'assets', 'quote')
 class Quote(commands.Cog):
     def __init__(self, bot):
@@ -109,7 +110,7 @@ class Quote(commands.Cog):
                 y_position = start_y + (i * line_height)
                 draw.text((x_position, y_position), line, fill="white", font=font)
             
-            author_text = f"- {message.author.display_name}"
+            author_text = f"- {message.author.global_name}"
             tag_text = f"@{message.author.name}"
             
             author_x = img_width * 0.98 - draw.textlength(author_text, font=font)
@@ -122,7 +123,7 @@ class Quote(commands.Cog):
             draw.text((tag_x, tag_y), tag_text, fill="white", font=small_font)
             
             image.save(f"{path}/output.png")
-            await ctx.send(file=discord.File(f"{path}/output.png"))
+            await send(self.bot, ctx, title=f"Quote by {author_name}", image=discord.File(f"{path}/output.png"))
             os.remove(f"{path}/output.png")
         except discord.NotFound:
             await ctx.send("Message not found")

@@ -3,7 +3,7 @@ from discord.ext import commands
 import sympy
 from sympy.parsing.sympy_parser import parse_expr
 from sympy.abc import x, y, z
-
+from Backend.send import send
 class Calculator(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

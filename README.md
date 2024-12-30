@@ -1,4 +1,3 @@
-
 # Snarky's Selfbot
 
 ![Project LOC](https://tokei.rs/b1/github/SnarkyDeveloper/Selfbot) ![GitHub Repo stars](https://img.shields.io/github/stars/SnarkyDeveloper/Selfbot?style=flat)
@@ -15,17 +14,61 @@ Yes, automating user accounts is against discord TOS, a normal bot rewrite is so
 
 @SnarkyDev on discord
 
-## Features
 
-- Reverse image searching (Broken, fixing)
-- Music Bot
-- Message Sniping
-- Moderation
-- Economy
-- AI features (Image Generation & Text Generation)
-- Fun commands!
+<details close>
+<summary><h3>Features</h3></summary>
+<!--All you need is a blank line-->
+
+- [✔️] Music Bot
   
-# Coming Up
+   * Play
+   * Pause
+   * Resume
+   * Stop
+   * Loop
+   * Queue
+
+- [✔️] Moderation
+
+  * Kick
+  * Ban
+  
+- [✔️] Fun Commands
+  * Reactions | Kiss, Hug, Slap, Bite, Tickle
+  * Quote
+  * Fake tweet
+  * PetPet
+  * Lyrics
+ 
+- [✔️] Utility
+    * Avatar
+    * AI Chat and Image Generation
+    * Full permissions system
+    * Message snipe
+    * Bot Stats
+
+- [✔️] Economy
+  * Balance
+  * Work
+  * Daily
+  * Steal
+  * Stripper
+  * Mafia
+  * Gambling
+    * Roulette
+    * Coinflip
+    * Dice
+- [✔️] Misc
+  * Reverse Image Searching [:x:]
+  * QOTD
+  * Polls
+  * Github info
+- [:x:] Spotify and music integration
+  * Control Currently playing music
+  * Get current song
+</details>
+
+## Coming Up
 
 - Spotify Integration for playback controls (Will require seperate flask server)
 

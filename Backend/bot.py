@@ -16,7 +16,7 @@ class CustomBot(commands.Bot):
             
                 command = self.get_command(command_name)
                 if command:
-                    if check_permissions(bot, message) or command_name == 'eco':
+                    if check_permissions(bot, message) or command_name == 'eco' or command_name == 'setup':
                         ctx = await self.get_context(message)
                         try:
                             args = parts[1] if len(parts) > 1 else ''

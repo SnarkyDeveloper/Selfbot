@@ -3,7 +3,7 @@ from discord.ext import commands
 import json
 from urllib.parse import quote_plus
 import lyrical
-
+from Backend.send import send
 def split_string_into_list(input_string, max_length):
     lyrics = []
     while len(input_string) > max_length:
@@ -24,18 +24,19 @@ class Lyrics(commands.Cog):
         if not query:
             await ctx.send("Please provide a song name.")
             return
-        lyrics_data = json.loads(await lyrical.Lyrics.lyrics(query))
+        lyrics_data = await lyrical.Lyrics.lyrics(query)
+        if not lyrics_data:
+            await send(self.bot, ctx, title='Error', content="No lyrics found.", color=0xff0000)
+            return
+        else:
+            lyrics_data = json.loads(lyrics_data)
         title = lyrics_data['title']
         artist = lyrics_data['artists']
         lyrics = lyrics_data['lyrics']
         try:
-            await ctx.send(f'# Lyrics of {title.strip()} by {artist.strip()}:\n ```{lyrics}```')
-        except discord.HTTPException:
-            lyrics_parts = split_string_into_list(lyrics, 1993)
-            for index, part in enumerate(lyrics_parts):
-                if index == 0:
-                    await ctx.send(f'# Lyrics of {title.strip()} by {artist.strip()}')
-                await ctx.send(f'```{part}```')
+            await send(self.bot, ctx, title=f'# Lyrics of {title.strip()} by {artist.strip()}', content=lyrics)
+        except:
+            send(self.bot, ctx, content='Issue retrieving lyrics', title='Error', color=0xff0000)
 
 async def setup(bot):
     await bot.add_cog(Lyrics(bot))

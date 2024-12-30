@@ -4,7 +4,7 @@ from discord.ext.commands import has_permissions, PartialEmojiConverter
 import aiohttp
 import os
 import io
-
+from Backend.send import send
 class Stealer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -51,7 +51,7 @@ class Stealer(commands.Cog):
                             )
                             print(f"Created custom emoji {added.name}")
 
-                        message = await ctx.send(f"Emoji {added.name} stolen! Use it with `:{added.name}:`")
+                        message = await send(self.bot, ctx, title='Emoji stolen', content=f"Emoji {added.name} stolen! Use it with `:{added.name}:`", color=0x2ECC71)
                         if not emoji.animated:
                             await message.add_reaction(added)
 
@@ -60,13 +60,13 @@ class Stealer(commands.Cog):
 
                     else:
                         print(f"Failed to fetch emoji image: {response.status}")
-                        await ctx.send(f"Failed to fetch emoji image from the server, status code: {response.status}")
+                        await send(self.bot, ctx, title='Error', content=f"Failed to fetch emoji image from the server, status code: {response.status}", color=0xff0000)
         except discord.Forbidden:
             print("No permissions to add emojis")
-            await ctx.send("No permissions to add emojis, please give me the `Manage Emojis` permission.")
+            await send(self.bot, ctx, title='Error', content="No permissions to add emojis, please give me the `Manage Emojis` permission.", color=0xff0000)
         except Exception as e:
             print(f"Error: {e}")
-            await ctx.send("An error occurred while trying to steal the emoji.")
+            await send(self.bot, ctx, title='Error', content=f"An error occurred while trying to steal the emoji.", color=0xff0000)
 
 async def setup(bot):
     await bot.add_cog(Stealer(bot))
