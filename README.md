@@ -19,7 +19,7 @@ Yes, automating user accounts is against discord TOS, a normal bot rewrite is so
 <summary><h3>Features</h3></summary>
 <!--All you need is a blank line-->
 
-- [✔️] Music Bot
+- [✅] Music Bot
   
    * Play
    * Pause
@@ -28,26 +28,26 @@ Yes, automating user accounts is against discord TOS, a normal bot rewrite is so
    * Loop
    * Queue
 
-- [✔️] Moderation
+- [✅] Moderation
 
   * Kick
   * Ban
   
-- [✔️] Fun Commands
+- [✅] Fun Commands
   * Reactions | Kiss, Hug, Slap, Bite, Tickle
   * Quote
   * Fake tweet
   * PetPet
   * Lyrics
  
-- [✔️] Utility
+- [✅] Utility
     * Avatar
     * AI Chat and Image Generation
     * Full permissions system
     * Message snipe
     * Bot Stats
 
-- [✔️] Economy
+- [✅] Economy
   * Balance
   * Work
   * Daily
@@ -58,12 +58,12 @@ Yes, automating user accounts is against discord TOS, a normal bot rewrite is so
     * Roulette
     * Coinflip
     * Dice
-- [✔️] Misc
-  * Reverse Image Searching [:x:]
+- [✅] Misc
+  * Reverse Image Searching [❌]
   * QOTD
   * Polls
   * Github info
-- [:x:] Spotify and music integration
+- [❌] Spotify and music integration
   * Control Currently playing music
   * Get current song
 </details>
@@ -83,32 +83,32 @@ To run this project, you will need to add the following environment variables to
 Clone the project
 
 ```bash
-  git clone https://github.com/SnarkyDeveloper/Selfbot
+git clone https://github.com/SnarkyDeveloper/Selfbot
 ```
 
 Go to the project directory
 
 ```bash
-  cd Selfbot
+cd Selfbot
 ```
 
 Create your venv
 
 ```python
-    python -m venv venv
-    #(Ensure its called venv or start script won't work)
+python -m venv venv
+#(Ensure its called venv or start script won't work)
 ```
 
 Install dependencies
 
 ```bash
-  pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Configure your settings
 
 ```text
-    Just add your desired settings in settings.json
+Just add your desired settings in settings.json
 ```
 
 Rename settings.example.json to settings.json and add your desired settings
@@ -116,10 +116,10 @@ Rename settings.example.json to settings.json and add your desired settings
 Start the bot
 
 ```bash
-  Either python main.py
-  or 
-  .\start.bat 
-  .\start.sh
+  # Either python main.py
+  # or 
+.\start.bat 
+.\start.sh
 ```
 
 ## Contributing
