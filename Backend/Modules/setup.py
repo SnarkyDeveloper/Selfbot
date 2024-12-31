@@ -8,7 +8,7 @@ class Setup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def setup(self, ctx):
         if ctx.author != ctx.guild.owner:

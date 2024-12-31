@@ -122,6 +122,10 @@ Start the bot
 .\start.sh
 ```
 
+### Setup
+
+Use a server of your own or create one and run prefixsetup, (I. E. !setup) in the channel you want your webhook messages sent.
+
 ## Contributing
 
 Contributions are always welcome!

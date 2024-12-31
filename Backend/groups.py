@@ -1,5 +1,5 @@
 from Backend.bot import bot
-@bot.group(invoke_without_command=True)
+@bot.group(invoke_without_command=True, description="Economy commands")
 async def eco(ctx, *args):
     """Economy commands"""
     

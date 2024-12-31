@@ -12,21 +12,6 @@ from Backend.send import send
 torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.enabled = True
 
-async def loading(ctx, interval=0.5, type="text"):
-    if type == "image":
-        x = await ctx.send("Generating image... This may take a while. You'll be notified when it's done.")
-    else:
-        x = await ctx.send("Generating response...")
-    load = await ctx.send("**↺**")
-    try:
-        while True:
-            await load.edit(content="**↺**")
-            await asyncio.sleep(interval)
-            await load.edit(content="**⟲**") 
-            await asyncio.sleep(interval)
-    finally:
-        await x.delete()
-        await load.delete()
 
 class Ollama(commands.Cog):
     def __init__(self, bot):

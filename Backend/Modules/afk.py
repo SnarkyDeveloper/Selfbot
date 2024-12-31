@@ -19,7 +19,7 @@ class Afk(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='afk', aliases=['brb'])
+    @commands.command(name='afk', aliases=['brb'], description='Go AFK')
     async def afk(self, ctx, reason=None):
         reason = reason or "AFK"
         
