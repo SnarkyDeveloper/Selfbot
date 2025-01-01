@@ -34,7 +34,7 @@ class Lyrics(commands.Cog):
         artist = lyrics_data['artists']
         lyrics = lyrics_data['lyrics']
         try:
-            await send(self.bot, ctx, title=f'# Lyrics of {title.strip()} by {artist.strip()}', content=lyrics)
+            await send(self.bot, ctx, title=f'Lyrics of {title.strip()} by {artist.strip()}', content=lyrics)
         except:
             send(self.bot, ctx, content='Issue retrieving lyrics', title='Error', color=0xff0000)
 

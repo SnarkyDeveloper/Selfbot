@@ -33,15 +33,23 @@ class Ollama(commands.Cog):
                 pool,
                 lambda: chat(
                     model='llama3.2',
-                    messages=[{'role': 'user', 'content': question}],
-                    stream=True
+                    messages=[{'role': 'user', 'content': question}]
                 )
             )
-        await loading_message.delete()
+        message = response.message.content
         try:
-            await send(self.bot, ctx, title=f'{question}', content=response['replies'][0]['content'], color=0x2ECC71)
+            if len(message) > 4096:
+                chunks = []
+                for i in range(0, len(message), 4096):
+                    chunks.append(message[i:i+4096])
+                for chunk in chunks:
+                    await send(self.bot, ctx, title=f'{question}', content=chunk, color=0x2ECC71)
+            else:
+                await send(self.bot, ctx, title=f'{question}', content=message, color=0x2ECC71)
         except Exception as e:
-            await send(self.bot, ctx, title='Error', content=f"An error occurred: {str(e)}", color=0xFF0000)
+            await send(self.bot, ctx, title='Error', content=f"An error occurred generating the response: {str(e)}", color=0xFF0000)
+        finally:
+            await loading_message.delete()
 
     @commands.command(description="Generate an image", aliases=["img", "imagine"])
     async def generate(self, ctx, prompt):
@@ -67,9 +75,9 @@ class Ollama(commands.Cog):
                 os.remove(f'{ctx.author.id}.png')
                 torch.cuda.empty_cache()
         except Exception as e:
-            while_loading = False
-            await loading_message.delete()
             await ctx.send(f"An error occurred: {str(e)}")
+        finally:
+            await loading_message.delete()
 
 async def setup(bot):
     await bot.add_cog(Ollama(bot))

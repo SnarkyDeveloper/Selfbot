@@ -24,8 +24,11 @@ async def send(bot, ctx, title, content=None, color=None, image=None):
     try:
         if image and not image.startswith("http"):
             image = await upload_to_0x0_st(image)
-        webhook = await create_embed.embed(ctx, title=title, content=content, color=color, image=image)
-        if channel_cache is None or channel_cache.id != int(webhook.channel_id):
+        try:
+            webhook = await create_embed.embed(ctx, title=title, content=content, color=color, image=image)
+        except Exception as e:
+            webhook = await create_embed.embed(ctx, title='Error', content=f"An error occurred: {e}", color=0xFF0000)
+        if channel_cache is None:
             channel_cache = bot.get_channel(int(webhook.channel_id))
         message = await channel_cache.fetch_message(int(webhook.id))
         message = await message.forward(ctx.channel)

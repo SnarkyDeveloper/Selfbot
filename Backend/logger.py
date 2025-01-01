@@ -21,6 +21,8 @@ async def on_message_delete(message):
     if message.author.bot:
         return
     user = message.author
+    if not message.content:
+        return
     messages_data = read_messages()
     messages_data["messages"].append({
             "user": str(user),
