@@ -7,7 +7,7 @@ class Tweet(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     @commands.command(description="Create a fake tweet")
-    async def tweet(self, ctx, *, tweet: str):
+    async def tweet(self, ctx, tweet: str):
         if not tweet:
             await send(self.bot, ctx, title='Error', content='Please provide a tweet in the format: <username>:<tweet>', color=0xff0000)
             return

@@ -63,6 +63,7 @@ class Snipe(commands.Cog):
         else:
             await send(self.bot, ctx, title='Error', content="No messages to snipe", color=0xff0000)
 
+    @commands.is_owner()
     @commands.command(description='Clear the snipe cache', aliases=['cs'])
     async def clearsnipe(self, ctx):
         messages_data = read_messages()

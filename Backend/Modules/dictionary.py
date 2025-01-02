@@ -8,23 +8,17 @@ class Define(commands.Cog):
         self.bot = bot
 
     @commands.command(description='Define a word', aliases=['def'])
-    async def define(self, ctx, id=None):
-        if ctx.message.startswith(">def "):
-            ctx2 = ctx.message.content.replace(">def ", "", 1).strip()
-        else:
-            ctx2 = ctx.message.content.replace(">define ", "", 1).strip()
+    async def define(self, ctx, word=None):
         if ctx.message.reference:
             id = ctx.message.reference.message_id
-        elif id is None and not ctx2:
-            await send(self.bot, ctx, title='Error', content="Please provide a message ID or reply to a message", color=0xFF0000)
+        elif id is None:
+            await send(self.bot, ctx, title='Error', content="Please reply to a message or provide a word", color=0xFF0000)
             return
-        elif ctx2: 
-            message = ctx2
         else:
             id = ctx.message.id
         
         if id and isinstance(id, int):
-            message = (await ctx.fetch_message(id)).content if await ctx.fetch_message(id) else None
+            message = word
         
         if message:
             definition = dictionary.meaning('en', message)

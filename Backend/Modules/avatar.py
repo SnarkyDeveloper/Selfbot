@@ -5,10 +5,10 @@ from Backend.send import send
 class Avatar(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
     @commands.command(description="Get the avatar of a user", aliases=['av'])
-    async def avatar(self, ctx, user: discord.User = None):
-        user = user or ctx.author
+    async def avatar(self, ctx, user: discord.Member = None):
+        if not user:
+            user = ctx.author
         await send(self.bot, ctx, title=f'{user.global_name}\'s Avatar', image=user.avatar.url)
 
     @commands.command(name="avatar_server", description="Get the avatar of the server", aliases=["as"])

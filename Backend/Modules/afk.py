@@ -26,10 +26,13 @@ class Afk(commands.Cog):
         with open(f'{path}/data/users/afk.json', 'r') as f:
             afk_data = json.load(f)
         
-        if str(ctx.guild.id) not in afk_data:
-            afk_data[str(ctx.guild.id)] = {}
-        
-        afk_data[str(ctx.guild.id)][str(ctx.author.id)] = {
+        if not ctx.guild.id:
+            guild = 'DM'
+        else:
+            guild = ctx.guild.id
+        if str(guild) not in afk_data:
+            afk_data[str(guild)] = {}
+        afk_data[str(guild)][str(ctx.author.id)] = {
             'reason': reason,
             'timestamp': time.time() * 1000
         }

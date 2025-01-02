@@ -6,8 +6,6 @@ async def eco(ctx, *args):
     if not args:
         await ctx.send("Available commands: work, daily, balance, steal, shop, coinflip, mafia, stripper")
         return
-    print("Bot is ready")
-    # Split the first argument into command and potential parameters
     command_parts = args[0].split(maxsplit=1)
     command_name = command_parts[0].lower()
     print(f"Parsed command name: {command_name}")
@@ -20,7 +18,6 @@ async def eco(ctx, *args):
     if command:
         print(f"Executing command: {command.name}")
         
-        # Handle user mentions
         for arg in args:
             if '<@' in arg:
                 user_id = int(''.join(filter(str.isdigit, arg)))
@@ -29,18 +26,13 @@ async def eco(ctx, *args):
                 await ctx.invoke(command, member)
                 return
         
-        # If there are additional parameters, pass them to the command
         if len(command_parts) > 1 or len(args) > 1:
-            # Get all parameters after the command name
             params = command_parts[1] if len(command_parts) > 1 else args[1]
-            # Convert to int if the command is coinflip
             if command_name == "coinflip":
                 params = int(params)
             await ctx.invoke(command, params)
         else:
             await ctx.invoke(command)
-    else:
-        await ctx.send(f"Unknown command: {command_name}")
 
 @bot.group(invoke_without_command=True)
 async def moderation(ctx, *args):
@@ -49,8 +41,6 @@ async def moderation(ctx, *args):
     if not args:
         await ctx.send("Available commands: Kick, Ban, Mute, Role, Anti-Raid")
         return
-    print("Bot is ready")
-    # Split the first argument into command and potential parameters
     command_parts = args[0].split(maxsplit=1)
     command_name = command_parts[0].lower()
     print(f"Parsed command name: {command_name}")
@@ -59,7 +49,6 @@ async def moderation(ctx, *args):
     if command:
         print(f"Executing command: {command.name}")
         
-        # Handle user mentions
         for arg in args:
             if '<@' in arg:
                 user_id = int(''.join(filter(str.isdigit, arg)))
@@ -68,13 +57,8 @@ async def moderation(ctx, *args):
                 await ctx.invoke(command, member)
                 return
         
-        # If there are additional parameters, pass them to the command
         if len(command_parts) > 1 or len(args) > 1:
-            # Get all parameters after the command name
             params = command_parts[1] if len(command_parts) > 1 else args[1]
-            # Convert to int if the command is coinflip
             await ctx.invoke(command, params)
         else:
             await ctx.invoke(command)
-    else:
-        await ctx.send(f"Unknown command: {command_name}")
