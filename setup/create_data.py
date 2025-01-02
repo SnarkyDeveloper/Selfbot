@@ -1,6 +1,11 @@
 import os
 import json
+import sys
 path = os.path.dirname(os.path.abspath(__file__))
+args = sys.argv
+if sys.argv:
+    id = args[1]
+    name = args[2]
 def get_run():
     with open(f'{path}/settings.json', 'r') as f:
         data = json.load(f)
@@ -14,8 +19,8 @@ if get_run() == 'True':
                 data = {
                     "users": [
                         {
-                            "id": '',
-                            "name": ''
+                            "id": id,
+                            "name": f'{name}#0',
                         }
                     ]
                 }
@@ -27,7 +32,7 @@ if get_run() == 'True':
         except Exception as e:
             print(f'Error creating users file: {e}')
         finally:
-            input('Users file created. Enter your id and username in name#0 (all lowercase) fomrat and press enter to continue.')
+            input('Users file created. Enter your id and username in name#0 (all lowercase) fomrat and press enter to continue. (If came from setup script, ignore this message)')
     def create_punishments():
         try:
             os.makedirs(f'{path}/data/punishments', exist_ok=True)
