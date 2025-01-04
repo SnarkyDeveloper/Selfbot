@@ -1,4 +1,4 @@
-import base64, time, dotenv, os, asyncio, json
+import time, dotenv, os, asyncio, json
 if not os.path.exists("data"):
     os.system('python create_data.py')
 from Backend.bot import bot 
@@ -7,7 +7,7 @@ from Backend.cogs import setup_cogs
 from Backend.events import setup_events
 from Backend.logger import logger
 dotenv.load_dotenv()
-token = base64.b64decode(os.getenv("token")).decode("utf-8")
+token = os.getenv('token')
 setup_events()
 start_time = time.time()
 async def setup_groups():
