@@ -30,9 +30,9 @@ if settings.get("main").get("first_run") == "True":
     
     print('Creating data directory...')
     
-    ai = input('Do you want AI features enabled? Not recommended for low end commputers/servers. Must have NVIDIA GPU (Y/n):').lower()
-    if ai != 'n':
-        ai = 'y'
+    ai = input('Do you want AI features enabled? Not recommended for low end commputers/servers. Must have NVIDIA GPU (y/N):').lower()
+    if ai != 'y':
+        ai = 'n'
     if ai == 'y':
         setup_ai().add_reqs()
         print('AI features enabled.')
@@ -44,3 +44,5 @@ if settings.get("main").get("first_run") == "True":
     print('Setup complete.')
     print('Starting bot...')
     print('Ensure to run >setup after the bot starts to configure the bot.')
+    
+os.system('python main.py')

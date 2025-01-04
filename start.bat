@@ -1,4 +1,28 @@
 set args=%*
+if "%args%"=="" (
+    set args=--no-args
+)
+
+@echo off
+if "%args%"=="--no-args" (
+    call .\venv\Scripts\activate.bat
+    python -m pip install -r requirements.txt -q -q -q --exists-action i
+)
+if "%args%"=="--verbose" (
+    call .\venv\Scripts\activate.bat
+    python -m pip install -r requirements.txt --exists-action i
+)
+if "%args%"=="--no-pip" (
+    echo skipping...
+)
 timeout /t 2 /nobreak > nul
 
-python ./setup/setup.py %args%
+ollama list | findstr "llama3.2:latest" > nul
+if %errorlevel% equ 0 (
+    call .\venv\Scripts\activate.bat
+    python main.py
+) else (
+    ollama run llama3.2
+    call .\venv\Scripts\activate.bat
+    python main.py
+)
