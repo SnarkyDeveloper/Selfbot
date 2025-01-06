@@ -12,8 +12,6 @@ class Stealer(commands.Cog):
     @commands.command(description="Steal an emoji")
     @has_permissions(manage_emojis=True)
     async def steal(self, ctx, emoji: discord.PartialEmoji = None):
-        print(f"{ctx.guild} {ctx.author} started stealing an emoji")
-
         try:
             if emoji is None:
                 print("No emoji provided, looking for one in the message")
@@ -24,7 +22,6 @@ class Stealer(commands.Cog):
                         print(f"Found emoji {emoji}")
                         break
                 else:
-                    print("No emoji found in the message")
                     await ctx.send("No emoji found in the message.")
                     return
 
