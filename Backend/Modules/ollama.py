@@ -29,13 +29,14 @@ class Ollama(commands.Cog):
     async def ask(self, ctx, question):
         loading_message = await send(self.bot, ctx, title='Generating response', content="Please wait while the bot generates a response", color=0x2ECC71)            
         with concurrent.futures.ThreadPoolExecutor() as pool:
-            response = await asyncio.get_event_loop().run_in_executor(
-                pool,
-                lambda: chat(
-                    model='llama3.2',
-                    messages=[{'role': 'user', 'content': question}]
+            async with ctx.typing():
+                response = await asyncio.get_event_loop().run_in_executor(
+                    pool,
+                    lambda: chat(
+                        model='llama3.2',
+                        messages=[{'role': 'user', 'content': question}]
+                    )
                 )
-            )
         message = response.message.content
         try:
             if len(message) > 4096:

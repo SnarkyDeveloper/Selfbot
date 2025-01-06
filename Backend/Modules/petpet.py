@@ -18,11 +18,11 @@ class PetPet(commands.Cog):
             with open(f'petpet_{user.id}.gif', 'wb') as f:
                 f.write(response.content)
             try:
-                await ctx.send(file=discord.File(f'petpet_{user.id}.gif'))
+                await send(self.bot, ctx, title=f'Heh that tickles-', image=f'petpet_{user.id}.gif')
             finally:
                 os.remove(f'petpet_{user.id}.gif')
         else:
-            await ctx.send('Failed to generate petpet image.')
+            await send(self.bot, ctx, title='Error', content='Failed to generate petpet image.', color=0xFF0000)
 
 async def setup(bot):
     await bot.add_cog(PetPet(bot))
