@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from Backend.Modules.ecoCore import Economy as EcoCore
+from Backend.send import send
 
 class Store(commands.Cog):
     def __init__(self, bot):
@@ -9,7 +10,7 @@ class Store(commands.Cog):
 
     @commands.command(description="Shop for items")
     async def shop(self, ctx):
-        await ctx.send("Coming soon!")
+        await send(self.bot, ctx, title="Shop", content="Coming soon!", color=0xFF0000)
 
 async def setup(bot):
     store_cog = Store(bot)
