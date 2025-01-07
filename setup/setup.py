@@ -33,7 +33,7 @@ class setup_ai:
     def __init__(self):
         self.requirements = new_requirements
         self.cuda = False
-        self.reqs = ['diffusers==0.31.0', 'accelerate==1.1.1', 'huggingface-hub==0.26.3', 'ollama==0.4.2', 'tokenizers==0.20.3', 'transformers==4.46.3', 'torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118']
+        self.reqs = ['diffusers==0.31.0', 'accelerate==1.1.1', 'huggingface-hub==0.26.3', 'ollama==0.4.2', 'tokenizers==0.20.3', 'transformers==4.46.3', 'torch==2.5.1', 'torchaudio==2.5.1', 'torchvision==0.20.1']
     def add_reqs(self):
         self.requirements += self.reqs
         with open('./requirements.txt', 'r+') as f:

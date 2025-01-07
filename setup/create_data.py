@@ -1,7 +1,7 @@
 import os
 import json
 import sys
-path = os.path.dirname(os.path.abspath(__file__))
+path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 args = sys.argv
 if sys.argv:
     id = args[1]
@@ -72,6 +72,16 @@ if get_run() == 'True':
                 f.close()
         except Exception as e:
             print(f'Error creating economy file: {e}')
+    def create_webhook():
+        try:
+            with open(f'{path}/data/webhook.json', 'w') as f:
+                data = {
+                    "webhook_url": ""
+                }
+                json.dump(data, f, indent=4)
+                f.close()
+        except Exception as e:
+            print(f'Error creating webhook file: {e}')
     def change_run():
         try:
             with open(f'{path}/settings.json', 'w') as f:
@@ -86,6 +96,7 @@ if get_run() == 'True':
             create_punishments()
             create_messages()
             create_economy()
+            create_webhook()
             create_users()
             print('Data files created.')
         except Exception as e:
