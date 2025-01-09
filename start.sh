@@ -19,15 +19,8 @@ fi
 
 sleep 2
 
-if ollama list | grep -q "llama3.2:latest"
-then
-    source ./venv/bin/activate
-    python main.py
-else
-    ollama run llama3.2
-    source ./venv/bin/activate
-    python main.py
-fi
+source ./venv/bin/activate
+python ./main.py
 
 # Obama
 # - Typera, 2024

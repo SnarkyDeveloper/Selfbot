@@ -1,21 +1,21 @@
 import discord
 from discord.ext import commands
-from ollama import chat
-from ollama import ChatResponse
 import asyncio
 import concurrent.futures
 from diffusers import StableDiffusionPipeline
 import os
 import torch
 from torch.amp import autocast
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from Backend.send import send
+
 torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.enabled = True
 
-
-class Ollama(commands.Cog):
+class AI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        
         self.pipeline = StableDiffusionPipeline.from_pretrained(
             "stabilityai/stable-diffusion-2-1",
             torch_dtype=torch.float16
@@ -23,30 +23,48 @@ class Ollama(commands.Cog):
         
         self.pipeline.enable_model_cpu_offload()
         self.pipeline.enable_vae_slicing()
+        model_name = "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.float16,
+            device_map="auto"
+        )
+        self.message_history = {}
         torch.cuda.empty_cache()
+
+    def generate_response(self, user_id, question):
+        if user_id not in self.message_history:
+            self.message_history[user_id] = []
+        self.message_history[user_id].append({"role": "user", "content": question})
+        if len(self.message_history[user_id]) > 10:
+            self.message_history[user_id] = self.message_history[user_id][-10:]
+        messages = "\n".join(
+            f"{msg['role']}: {msg['content']}" for msg in self.message_history[user_id]
+        )
+        inputs = self.tokenizer(messages, return_tensors="pt", padding=True, truncation=True).to(self.model.device)
+        outputs = self.model.generate(**inputs, max_length=2048, do_sample=True, top_p=0.95, temperature=0.7)
+        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        self.message_history[user_id].append({"role": "assistant", "content": response})
+        return response
 
     @commands.command(description="Ask an AI a question")
     async def ask(self, ctx, question):
+        user_id = ctx.author.id
         loading_message = await send(self.bot, ctx, title='Generating response', content="Please wait while the bot generates a response", color=0x2ECC71)            
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            async with ctx.typing():
-                response = await asyncio.get_event_loop().run_in_executor(
-                    pool,
-                    lambda: chat(
-                        model='llama3.2',
-                        messages=[{'role': 'user', 'content': question}]
-                    )
-                )
-        message = response.message.content
         try:
-            if len(message) > 4096:
-                chunks = []
-                for i in range(0, len(message), 4096):
-                    chunks.append(message[i:i+4096])
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                async with ctx.typing():
+                    response = await asyncio.get_event_loop().run_in_executor(
+                        pool,
+                        lambda: self.generate_response(user_id, question)
+                    )
+            if len(response) > 4096:
+                chunks = [response[i:i+4096] for i in range(0, len(response), 4096)]
                 for chunk in chunks:
                     await send(self.bot, ctx, title=f'{question}', content=chunk, color=0x2ECC71)
             else:
-                await send(self.bot, ctx, title=f'{question}', content=message, color=0x2ECC71)
+                await send(self.bot, ctx, title=f'{question}', content=response, color=0x2ECC71)
         except Exception as e:
             await send(self.bot, ctx, title='Error', content=f"An error occurred generating the response: {str(e)}", color=0xFF0000)
         finally:
@@ -81,4 +99,4 @@ class Ollama(commands.Cog):
             await loading_message.delete()
 
 async def setup(bot):
-    await bot.add_cog(Ollama(bot))
+    await bot.add_cog(AI(bot))
