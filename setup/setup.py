@@ -1,10 +1,14 @@
 import json
-from Backend.utils import read_settings
 import os, sys
 import ctypes
-
+path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 class AdminStateUnknownError(Exception):
     pass
+def read_settings():
+    with open(f'{path}/settings.json', 'r') as f:
+        data = json.load(f)
+        f.close()
+        return data
 
 def is_user_admin():
     try:
