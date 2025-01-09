@@ -1,10 +1,11 @@
 from Backend.bot import bot
+from Backend.send import send
 @bot.group(invoke_without_command=True, description="Economy commands")
 async def eco(ctx, *args):
     """Economy commands"""
     
     if not args:
-        await ctx.send("Available commands: work, daily, balance, steal, shop, coinflip, mafia, stripper")
+        await send(bot, ctx, title="Available commands: Economy", content="Work, Daily, Balance, Steal, Shop, Coinflip, Mafia, Stripper", color=0x2ECC71)
         return
     command_parts = args[0].split(maxsplit=1)
     command_name = command_parts[0].lower()
@@ -39,7 +40,7 @@ async def moderation(ctx, *args):
     """Moderation commands"""
     
     if not args:
-        await ctx.send("Available commands: Kick, Ban, Mute, Role, Anti-Raid")
+        await send(bot, ctx, title="Available commands: Economy", content=" Kick, Ban, Mute, Role, Anti-Raid", color=0x2ECC71)
         return
     command_parts = args[0].split(maxsplit=1)
     command_name = command_parts[0].lower()
