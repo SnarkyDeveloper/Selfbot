@@ -111,7 +111,7 @@ class Quote(commands.Cog):
                     y_position = start_y + (i * line_height)
                     draw.text((x_position, y_position), line, fill="white", font=font)
                 
-                author_text = f"- {message.author.global_name}"
+                author_text = f"- {message.author.display_name}"
                 tag_text = f"@{message.author.name}"
                 
                 author_x = img_width * 0.98 - draw.textlength(author_text, font=font)

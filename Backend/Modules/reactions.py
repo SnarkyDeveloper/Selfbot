@@ -31,9 +31,9 @@ class Reactions(commands.Cog):
         if user:
             user = await commands.UserConverter().convert(ctx, user)
         if not user or user == ctx.author:
-            await send(self.bot, ctx, title=f'{ctx.author.global_name} kisses... themselves?',color=0xFEE75C, content=f'{ctx.author.mention} kisses themselves! How strange!', image=reaction)
+            await send(self.bot, ctx, title=f'{ctx.author.display_name} kisses... themselves?',color=0xFEE75C, content=f'{ctx.author.mention} kisses themselves! How strange!', image=reaction)
         else:
-            await send(self.bot, ctx, color=0xFEE75C, title=f'{ctx.author.global_name} kisses {user.global_name}!', content=f'{ctx.author.mention} kisses {user.mention}, How cute!', image=reaction)
+            await send(self.bot, ctx, color=0xFEE75C, title=f'{ctx.author.display_name} kisses {user.display_name}!', content=f'{ctx.author.mention} kisses {user.mention}, How cute!', image=reaction)
 
     @commands.command(description='Hug a user!')
     async def hug(self, ctx, user: discord.Member = None):
@@ -41,9 +41,9 @@ class Reactions(commands.Cog):
             user = await commands.UserConverter().convert(ctx, user)
         reaction = await self.get_reaction('hug')
         if not user or user == ctx.author:
-            await send(self.bot, ctx, title=f'{ctx.author.global_name} hugs... themselves?', color=0xFEE75C, content=f'{ctx.author.mention} hugs themselves! How strange!', image=reaction)
+            await send(self.bot, ctx, title=f'{ctx.author.display_name} hugs... themselves?', color=0xFEE75C, content=f'{ctx.author.mention} hugs themselves! How strange!', image=reaction)
         else:
-            await send(self.bot, ctx, color=0xFEE75C, title=f'{ctx.author.global_name} hugs {user.global_name}!',content=f'{ctx.author.mention} hugs {user.mention}, How cute!', image=reaction)
+            await send(self.bot, ctx, color=0xFEE75C, title=f'{ctx.author.display_name} hugs {user.display_name}!',content=f'{ctx.author.mention} hugs {user.mention}, How cute!', image=reaction)
 
     @commands.command(description='Tickle a user!')
     async def tickle(self, ctx, user: discord.Member = None):

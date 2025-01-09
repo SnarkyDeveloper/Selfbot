@@ -56,7 +56,7 @@ class CreateEmbed:
             if video:
                 embed.set_video(url=video)
             embed.set_footer(text=f'Bot created by SnarkyDev, Command ran at {datetime.now().strftime("%m/%d, %I:%M %p")}')
-            embed.set_author(name=ctx.author.global_name, icon_url=ctx.author.display_avatar.url)
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
             webhook = await webhook.send_async(
                 embed=embed,
             )
