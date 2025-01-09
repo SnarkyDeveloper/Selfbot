@@ -54,7 +54,7 @@ class Snipe(commands.Cog):
             if location_messages:
                 if 1 <= position <= len(location_messages):
                     msg = location_messages[-position]
-                    response = f"**\nBefore: {msg['message_before']}\nAfter: {msg['message_after']}\n[Jump to message]({msg['message_link']})"
+                    response = f"\n**Before:** {msg['message_before']}\n**After:** {msg['message_after']}\n[Jump to message]({msg['message_link']})"
                     await send(self.bot, ctx, title=f'Message Edited by {msg["user"]}', content=response, color=0xFEE75C)
                 else:
                     await send(self.bot, ctx, title='Error', content=f"Invalid position. Available range: 1-{len(location_messages)}", color=0xff0000)
