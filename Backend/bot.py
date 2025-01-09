@@ -28,11 +28,14 @@ class CustomBot(commands.Bot):
                             print(f"Error executing command: {e}")
             except Exception as e:
                 print(f"Error in command processing: {e}")
+status_text = read_settings()["main"]["status"]  # This should return the desired status text
 bot = CustomBot(
         command_prefix=read_settings()["main"]["prefix"], 
         description=description, 
         self_bot=True,
         status=discord.Status.dnd,
-        activity=discord.Activity(type=discord.ActivityType.playing, name=read_settings()["main"]["status"], buttons=["htttps://github.com/SnarkyDeveloper/Selfbot"]),
+        activity = discord.Activity(
+        type=discord.ActivityType.streaming,
+        name=status_text,),
         help_command=None,
     )
