@@ -1,13 +1,15 @@
 import json
 from Backend.bot import bot
-
+from Backend.utils import read_settings
 with open('modules.json') as f:
     modules = json.load(f)
 
 loaded = []
 
 async def setup_cogs():
-    await bot.load_extension('Backend.Modules.setup')
+    if read_settings().get('main').get('first_run') == 'True':
+        await bot.load_extension('Backend.Modules.setup')
+        return
     for module, enabled in modules['loaded'].items():
         if enabled:
             if module == 'economy':
