@@ -43,18 +43,20 @@ class CreateEmbed:
             print(f'Failed to send file: {response.status_code}, {response.text}')
             return None
 
-    async def embed(self, ctx, title, content, color=0x000000, image=None):
+    async def embed(self, ctx, title, content, color=0x000000, image=None, video=None):
         if not self.webhook_url:
             raise ValueError("Webhook URL is not provided")
-        if image and not image.startswith("http"):
+        if image and not image.startswith("http") or video and not video.startswith("http"):
                 image = await self.send_file(file=f'{image}', webhook=self.webhook_url)
         webhook = discordwebhook.Webhook(url=self.webhook_url)
         try:
             embed = discordwebhook.Embed(title=title, description=content, color=color)
             if image:
                 embed.set_image(url=image)
+            if video:
+                embed.set_video(url=video)
             embed.set_footer(text=f'Bot created by SnarkyDev, Command ran at {datetime.now().strftime("%m/%d, %I:%M %p")}')
-            embed.set_author(name=ctx.author.global_name, icon_url=ctx.author.display_avatar.url)
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
             webhook = await webhook.send_async(
                 embed=embed,
             )

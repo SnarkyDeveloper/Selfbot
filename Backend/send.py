@@ -5,12 +5,12 @@ import os
 channel_cache = None
 
 create_embed = CreateEmbed()
-async def send(bot, ctx, title, content=None, color=None, image=None):
+async def send(bot, ctx, title, content=None, color=None, image=None, video=None):
     global channel_cache
     try:
         async with ctx.typing():
             try:
-                webhook = await create_embed.embed(ctx, title=title, content=content, color=color, image=image)
+                webhook = await create_embed.embed(ctx, title=title, content=content, color=color, image=image, video=video)
             except Exception as e:
                 webhook = await create_embed.embed(ctx, title='Error', content=f"An error occurred: {e}", color=0xFF0000)
             if channel_cache is None:

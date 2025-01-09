@@ -10,7 +10,7 @@ class Avatar(commands.Cog):
             user = ctx.author
         else:
             user = await commands.UserConverter().convert(ctx, user)
-        await send(self.bot, ctx, title=f'{user.global_name}\'s Avatar', image=user.avatar.url)
+        await send(self.bot, ctx, title=f'{user.display_name}\'s Avatar', image=user.avatar.url)
 
     @commands.command(name="sv", description="Get the avatar of the server", aliases=["as"])
     async def sv(self, ctx, user: discord.Member = None):
@@ -30,7 +30,7 @@ class Avatar(commands.Cog):
             user = str(ctx.author.id)
         user = await commands.UserConverter().convert(ctx, user)
         if user.banner:
-            await send(self.bot, ctx, title=f'{user.global_name}\'s Banner', image=user.banner.url)
+            await send(self.bot, ctx, title=f'{user.display_name}\'s Banner', image=user.banner.url)
         else:
             await send(self.bot, ctx, title=f'Error', content="The user doesn't have a banner!", color=0xFF0000)
 
