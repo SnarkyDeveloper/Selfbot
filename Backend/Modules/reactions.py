@@ -30,6 +30,9 @@ class Reactions(commands.Cog):
         reaction = await self.get_reaction('kiss')
         if user:
             user = await commands.UserConverter().convert(ctx, user)
+        if ctx.message.reference:
+            ref_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            user = ref_message.author
         if not user or user == ctx.author:
             await send(self.bot, ctx, title=f'{ctx.author.display_name} kisses... themselves?',color=0xFEE75C, content=f'{ctx.author.mention} kisses themselves! How strange!', image=reaction)
         else:
@@ -39,6 +42,9 @@ class Reactions(commands.Cog):
     async def hug(self, ctx, user: discord.Member = None):
         if user:
             user = await commands.UserConverter().convert(ctx, user)
+        if ctx.message.reference:
+            ref_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            user = ref_message.author
         reaction = await self.get_reaction('hug')
         if not user or user == ctx.author:
             await send(self.bot, ctx, title=f'{ctx.author.display_name} hugs... themselves?', color=0xFEE75C, content=f'{ctx.author.mention} hugs themselves! How strange!', image=reaction)
@@ -49,6 +55,9 @@ class Reactions(commands.Cog):
     async def tickle(self, ctx, user: discord.Member = None):
         if user:
             user = await commands.UserConverter().convert(ctx, user)
+        if ctx.message.reference:
+            ref_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            user = ref_message.author
         if not user or user == ctx.author:
             await send(self.bot, ctx, color=0xFF0000, title=f'Error', content=f'{ctx.author.mention} You can\'t tickle yourself!')
         else:
@@ -59,6 +68,9 @@ class Reactions(commands.Cog):
     async def bite(self, ctx, user: discord.Member = None):
         if user:
             user = await commands.UserConverter().convert(ctx, user)
+        if ctx.message.reference:
+            ref_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            user = ref_message.author
         if not user or user == ctx.author:
             await send(self.bot, ctx, color=0xFF0000, title='Error', content=f'{ctx.author.mention} You can\'t bite yourself!')
         else:
@@ -69,6 +81,9 @@ class Reactions(commands.Cog):
     async def slap(self, ctx, user: discord.Member = None):
         if user:
             user = await commands.UserConverter().convert(ctx, user)
+        if ctx.message.reference:
+            ref_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            user = ref_message.author
         if not user or user == ctx.author:
             await send(self.bot, ctx, color=0xFF0000, title='Error', content=f'{ctx.author.mention} You can\'t slap yourself!')
         else:
@@ -79,6 +94,9 @@ class Reactions(commands.Cog):
     async def blush(self, ctx, user: discord.Member = None):
         if user:
             user = await commands.UserConverter().convert(ctx, user)
+        if ctx.message.reference:
+            ref_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            user = ref_message.author
         reaction = await self.get_reaction('blush', source='https://purrbot.site/api/img/sfw')
         if user:
             await send(self.bot, ctx, color=0xFEE75C, title=f'Someone\'s blushing!', content=f'{ctx.author.mention} has a crush on {user.mention} (probably) :3', image=reaction)
