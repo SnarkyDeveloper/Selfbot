@@ -15,43 +15,65 @@ torch.backends.cudnn.enabled = True
 class AI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
-        self.pipeline = StableDiffusionPipeline.from_pretrained(
-            "stabilityai/stable-diffusion-2-1",
-            torch_dtype=torch.float16
-        )
-        
-        self.pipeline.enable_model_cpu_offload()
-        self.pipeline.enable_vae_slicing()
-        model_name = "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.float16,
-            device_map="auto"
-        )
         self.message_history = {}
         torch.cuda.empty_cache()
+
+        self.offload_folder = './offload'
+        
+        if not os.path.exists(self.offload_folder):
+            os.makedirs(self.offload_folder)
+        
+        self.model, self.tokenizer = self.initialize_model_tokenizer()
+
+    def initialize_model_tokenizer(self):
+        model_name = "openlm-research/open_llama_3b"
+        
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+            tokenizer.pad_token = tokenizer.eos_token
+            
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                torch_dtype=torch.float16,
+                device_map="auto",
+                offload_folder=self.offload_folder
+            )
+            return model, tokenizer
+        
+        except Exception as e:
+            raise ValueError(f"Error initializing model and tokenizer: {e}")
 
     def generate_response(self, user_id, question):
         if user_id not in self.message_history:
             self.message_history[user_id] = []
+
         self.message_history[user_id].append({"role": "user", "content": question})
-        if len(self.message_history[user_id]) > 10:
-            self.message_history[user_id] = self.message_history[user_id][-10:]
-        messages = "\n".join(
-            f"{msg['role']}: {msg['content']}" for msg in self.message_history[user_id]
-        )
+        if len(self.message_history[user_id]) > 5:
+            self.message_history[user_id] = self.message_history[user_id][-5:]
+
+        messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in self.message_history[user_id])
+        
         inputs = self.tokenizer(messages, return_tensors="pt", padding=True, truncation=True).to(self.model.device)
-        outputs = self.model.generate(**inputs, max_length=2048, do_sample=True, top_p=0.95, temperature=0.7)
+        outputs = self.model.generate(
+            **inputs, max_length=512, do_sample=True, top_p=0.95, temperature=0.7, pad_token_id=self.tokenizer.eos_token_id
+        )
         response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         self.message_history[user_id].append({"role": "assistant", "content": response})
         return response
 
+    async def send_response(self, ctx, question, response):
+        if len(response) > 4096:
+            chunks = [response[i:i+4096] for i in range(0, len(response), 4096)]
+            for chunk in chunks:
+                await send(self.bot, ctx, title=f'{question}', content=chunk, color=0x2ECC71)
+        else:
+            await send(self.bot, ctx, title=f'{question}', content=response, color=0x2ECC71)
+
     @commands.command(description="Ask an AI a question")
     async def ask(self, ctx, question):
         user_id = ctx.author.id
-        loading_message = await send(self.bot, ctx, title='Generating response', content="Please wait while the bot generates a response", color=0x2ECC71)            
+        loading_message = await send(self.bot, ctx, title='Generating response', content="Please wait while the bot generates a response", color=0x2ECC71)
+        
         try:
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 async with ctx.typing():
@@ -59,42 +81,40 @@ class AI(commands.Cog):
                         pool,
                         lambda: self.generate_response(user_id, question)
                     )
-            if len(response) > 4096:
-                chunks = [response[i:i+4096] for i in range(0, len(response), 4096)]
-                for chunk in chunks:
-                    await send(self.bot, ctx, title=f'{question}', content=chunk, color=0x2ECC71)
-            else:
-                await send(self.bot, ctx, title=f'{question}', content=response, color=0x2ECC71)
+                    print(response)
+            await self.send_response(ctx, question, response)
+
         except Exception as e:
             await send(self.bot, ctx, title='Error', content=f"An error occurred generating the response: {str(e)}", color=0xFF0000)
+
         finally:
             await loading_message.delete()
 
     @commands.command(description="Generate an image", aliases=["img", "imagine"])
     async def generate(self, ctx, prompt):
         loading_message = await send(self.bot, ctx, title='Generating image', content="Generating image... This may take a while. You'll be notified when it's done.")
+        
         try:
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 try:
                     with autocast('cuda'):
                         image = await asyncio.get_event_loop().run_in_executor(
                             pool,
-                            lambda: self.pipeline(
-                                prompt,
-                                num_inference_steps=15
-                            ).images[0]
+                            lambda: self.pipeline(prompt, num_inference_steps=15).images[0]
                         )
                 except torch.cuda.OutOfMemoryError:
                     print("Not enough GPU memory. Trying CPU fallback.")
                     self.pipeline.to('cpu')
+
                 await loading_message.delete()
-                
-                image.save(f'{ctx.author.id}.png')
-                message = await send(self.bot, ctx, title=f'Image generated!', content=f'{prompt} | Generated by {ctx.author.mention}', image=discord.File(f'{ctx.author.id}.png'))
-                os.remove(f'{ctx.author.id}.png')
+                image_path = f'{ctx.author.id}.png'
+                image.save(image_path)
+                await send(self.bot, ctx, title=f'Image generated!', content=f'{prompt} | Generated by {ctx.author.mention}', image=discord.File(image_path))
+                os.remove(image_path)
                 torch.cuda.empty_cache()
+
         except Exception as e:
-            await ctx.send(f"An error occurred: {str(e)}")
+            await send(self.bot, ctx, title='Error', content=f"An error occurred: {str(e)}", color=0xFF0000)
         finally:
             await loading_message.delete()
 
