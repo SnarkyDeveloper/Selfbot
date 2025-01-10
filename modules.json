@@ -7,7 +7,7 @@
         "music": true,
         "avatar": true,
         "quote": true,
-        "ai": true,
+        "ai": false,
         "reverse": true,
         "dictionary": true,
         "afk": true,
