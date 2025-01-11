@@ -1,7 +1,6 @@
 import discord
 from Backend.embed import CreateEmbed
-import aiohttp
-import os
+import asyncio
 channel_cache = None
 
 create_embed = CreateEmbed()
@@ -16,6 +15,8 @@ async def send(bot, ctx, title, content=None, color=None, image=None, video=None
             if channel_cache is None:
                 channel_cache = bot.get_channel(int(webhook.channel_id))
             message = await channel_cache.fetch_message(int(webhook.id))
+            if image or video:
+                asyncio.sleep(2)
             message = await message.forward(ctx.channel)
             return message
     except discord.Forbidden:
