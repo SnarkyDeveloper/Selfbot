@@ -9,8 +9,7 @@ class Quote(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     @commands.command(name="quote", description="Quote a message", aliases=["q"])
-    async def quote(self, ctx, message_id: int = None, mode: str = "black"):
-            
+    async def quote(self, ctx, message_id: int = None, mode: str = "black"):         
         if message_id is None:
             if ctx.message.reference:
                 message_id = ctx.message.reference.message_id
@@ -48,24 +47,23 @@ class Quote(commands.Cog):
                         lines.append(' '.join(current_line))
                     return lines
                 
-                def get_optimal_font_size(text, max_width, max_height, start_size=36):
+                def get_optimal_font_size(text, max_width, max_height, min_size=12, start_size=36):
                     test_size = start_size
-                    font = ImageFont.truetype(f"{path}/font.otf", test_size)
-                    
-                    while test_size > 12:
+                    while test_size > min_size:
                         font = ImageFont.truetype(f"{path}/font.otf", test_size)
                         lines = wrap_text(text, font, max_width)
                         total_height = len(lines) * (font.size * 1.2)
+                        max_line_width = max(draw.textlength(line, font=font) for line in lines)
                         
-                        if total_height <= max_height and max(draw.textlength(line, font=font) for line in lines) <= max_width:
-                            break
+                        if (total_height <= max_height and 
+                            max_line_width <= max_width):
+                            return font, lines
                         
                         test_size -= 2
-                    return font
+                    
+                    font = ImageFont.truetype(f"{path}/font.otf", min_size)
+                    return font, wrap_text(text, font, max_width)
 
-                text_area_width = img_width * 0.6
-                text_area_height = img_height * 0.7
-                
                 if message.author.avatar:
                     avatar_data = await message.author.avatar.read()
                     avatar_image = Image.open(BytesIO(avatar_data))
@@ -94,36 +92,50 @@ class Quote(commands.Cog):
                 image.paste(avatar_image, (avatar_x, avatar_y), mask)
                 
                 draw = ImageDraw.Draw(image)
-                text_area_width = img_width * 0.6
-                text_area_height = img_height * 0.6
+                min_x_position = avatar_width + 40
+                max_x_position = img_width - 40
+                text_area_width = max_x_position - min_x_position
+                text_area_height = img_height * 0.7
                 
-                font = get_optimal_font_size(message.content.encode("ascii", errors="ignore").decode(), text_area_width, text_area_height)
-                small_font = ImageFont.truetype(f"{path}/font.otf", int(font.size * 0.7))
+                content = message.content.encode("ascii", errors="ignore").decode()
+                for user in message.mentions:
+                    content = content.replace(f"@{user.name}", f"@{user.display_name}")
                 
-                lines = wrap_text(message.content.encode("ascii", errors="ignore").decode(), font, text_area_width)
+                font, lines = get_optimal_font_size(
+                    content, 
+                    text_area_width,
+                    text_area_height
+                )
                 
                 line_height = font.size * 1.2
                 total_height = len(lines) * line_height
                 start_y = (img_height - total_height) / 2 - line_height
-                
+
                 for i, line in enumerate(lines):
-                    x_position = img_width * 0.98 - draw.textlength(line, font=font)
                     y_position = start_y + (i * line_height)
-                    draw.text((x_position, y_position), line, fill="white", font=font)
-                
+                    draw.text((min_x_position, y_position), line, fill="white", font=font)
+
                 author_text = f"- {message.author.display_name}"
                 tag_text = f"@{message.author.name}"
                 
-                author_x = img_width * 0.98 - draw.textlength(author_text, font=font)
                 author_y = start_y + (len(lines) * line_height) + line_height
-                
-                tag_x = img_width * 0.98 - draw.textlength(tag_text, font=small_font)
                 tag_y = author_y + font.size * 1.2
+
+                author_font = ImageFont.truetype(f"{path}/font.otf", int(font.size * 0.8))
+                small_font = ImageFont.truetype(f"{path}/font.otf", int(font.size * 0.6))
+
+                author_width = draw.textlength(author_text, font=author_font)
+                tag_width = draw.textlength(tag_text, font=small_font)
                 
-                draw.text((author_x, author_y), author_text, fill="white", font=font)
-                draw.text((tag_x, tag_y), tag_text, fill="white", font=small_font)
+                if min_x_position + max(author_width, tag_width) > max_x_position:
+                    author_font = ImageFont.truetype(f"{path}/font.otf", int(font.size * 0.6))
+                    small_font = ImageFont.truetype(f"{path}/font.otf", int(font.size * 0.4))
+                
+                draw.text((min_x_position, author_y), author_text, fill="white", font=author_font)
+                draw.text((min_x_position, tag_y), tag_text, fill="white", font=small_font)
                 
                 image.save(f"{path}/output.png")
+                
             try:
                 await send(self.bot, ctx, title=f"Quote by {author_name}", image=f"{path}/output.png")
             finally:
