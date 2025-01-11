@@ -1,5 +1,6 @@
 import json
 import os, sys
+import subprocess
 import ctypes
 path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 class AdminStateUnknownError(Exception):
@@ -26,10 +27,11 @@ if '--no-setup' in args:
     exit()
 if '--setup' in args:
     print('Running setup...')
-    os.system('python3 setup.py')
+    subprocess.run(['python3', 'setup.py'])
     exit()
 if not is_user_admin():
-    os.system('powershell -Command "Start-Process python -ArgumentList \'./setup.py\' -Verb RunAs"')
+    if os.name == 'nt':
+        os.system('powershell', '-Command', 'Start-Process python -ArgumentList \'./setup.py\' -Verb RunAs')
 new_requirements = []
 settings = read_settings()
 
@@ -61,13 +63,13 @@ if settings.get("main").get("first_run") == "True":
     if ai == 'y':
         setup_ai().add_reqs()
         print('AI features enabled.')
-    os.system('pip3 install -r requirements.txt')
+    subprocess.run(['pip3', 'install', '-r', 'requirements.txt'])
     id = input('Enter your user ID: ')
     name = input('Enter your username: ')
-    os.system(f'python create_data.py {id} {name.lower()}')
+    subprocess.run(['python', 'create_data.py', id, name.lower()])
     print('Data files created.')
     print('Setup complete.')
     print('Starting bot...')
     print('Ensure to run >setup after the bot starts to configure the bot.')
     
-os.system('python main.py')
+subprocess.run(['python', 'main.py'])

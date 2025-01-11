@@ -16,7 +16,7 @@ async def send(bot, ctx, title, content=None, color=None, image=None, video=None
                 channel_cache = bot.get_channel(int(webhook.channel_id))
             message = await channel_cache.fetch_message(int(webhook.id))
             if image or video:
-                asyncio.sleep(2)
+                await asyncio.sleep(2)
             message = await message.forward(ctx.channel)
             return message
     except discord.Forbidden:
