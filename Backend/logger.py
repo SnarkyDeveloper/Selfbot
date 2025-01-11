@@ -46,6 +46,7 @@ async def on_message_edit(before, after):
         "message_link": f"https://discord.com/channels/{before.guild.id if before.guild else '@me'}/{before.channel.id}/{before.id}"
     })
     write_messages(messages_data)
+    await bot.parse(after)
 
 def logger():
     bot.add_listener(on_message_delete, "on_message_delete")

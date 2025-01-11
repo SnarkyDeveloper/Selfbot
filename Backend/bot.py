@@ -5,14 +5,14 @@ from Backend.permissions import check_permissions
 description = "Selfbot"
 prefix = read_settings()["main"]["prefix"]
 class CustomBot(commands.Bot):
-    async def on_message(self, message):
+    async def parse(self, message):
         if message.author.bot:
             return
 
         if message.content.startswith(prefix):
             try:
                 parts = message.content[1:].split(maxsplit=1)
-                command_name = parts[0]
+                command_name = parts[0].lower()
             
                 command = self.get_command(command_name)
                 if command:
@@ -28,7 +28,9 @@ class CustomBot(commands.Bot):
                             print(f"Error executing command: {e}")
             except Exception as e:
                 print(f"Error in command processing: {e}")
-status_text = read_settings()["main"]["status"]  # This should return the desired status text
+    async def on_message(self, message):
+        await self.parse(message)
+status_text = read_settings()["main"]["status"]
 bot = CustomBot(
         command_prefix=read_settings()["main"]["prefix"], 
         description=description, 
