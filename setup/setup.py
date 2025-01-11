@@ -54,7 +54,15 @@ class setup_ai:
 
 if settings.get("main").get("first_run") == "True":
     print("First run detected. Running setup...")
-    
+    if os.path.exists(f'{path}/venv'):
+        print('Venv already exists.')
+    else:
+        print('Creating venv...')
+        try:
+            subprocess.run(['python3', '-m', 'venv', 'venv'])
+            print('Venv created.')
+        except Exception as e: 
+            print(f'Error creating venv: {e}')
     print('Creating data directory...')
     
     ai = input('Do you want AI features enabled? Not recommended for low end computers/servers. Must have NVIDIA GPU (y/N):').lower()
