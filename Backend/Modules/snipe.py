@@ -2,6 +2,7 @@ import random
 from discord.ext import commands
 from Backend.utils import read_messages, write_messages
 from Backend.send import send
+from Backend.utils import is_owner
 class Snipe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -63,9 +64,11 @@ class Snipe(commands.Cog):
         else:
             await send(self.bot, ctx, title='Error', content="No messages to snipe", color=0xff0000)
 
-    @commands.is_owner()
     @commands.command(description='Clear the snipe cache', aliases=['cs'])
     async def clearsnipe(self, ctx):
+        if not is_owner(ctx.author.id):
+            await send(self.bot, ctx, title='Error', content="You are not allowed to use this command", color=0xff0000)
+            return
         messages_data = read_messages()
         messages_data["messages"] = []
         write_messages(messages_data)

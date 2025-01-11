@@ -3,16 +3,18 @@ from discord.ext import commands
 from Backend.bot import bot
 import json
 import os
+from Backend.utils import is_owner
 path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 class Setup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(hidden=True)
-    @commands.is_owner()
     async def setup(self, ctx):
-        if ctx.author != ctx.guild.owner:
+        if ctx.author.id != ctx.guild.owner.id:
             return await ctx.send("Only the server owner can run this command.")
+        if not is_owner(ctx.author.id):
+            return await ctx.send("You are not allowed to run this command.")
         channel = ctx.channel
         if not channel.permissions_for(ctx.guild.me).manage_webhooks:
             await ctx.send("I don't have permission to manage webhooks in this channel.")
