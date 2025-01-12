@@ -32,7 +32,7 @@ if get_run() == True:
         except Exception as e:
             print(f'Error creating users file: {e}')
         finally:
-            input('Users file created. Enter your id and username in name#0 (all lowercase) fomrat and press enter to continue. (If came from setup script, ignore this message)')
+            input('Users file created. Hit enter to continue...')
     def create_punishments():
         try:
             os.makedirs(f'{path}/data/punishments', exist_ok=True)
@@ -102,4 +102,4 @@ if get_run() == True:
         except Exception as e:
             print(f'Error creating data files: {e}')
 else:
-    print('Skipping data creation. Files already exist. Change first_run to True in settings.json to recreate data files.')
+    print('Skipping data creation. Files already exist. Change first_run to true in settings.json to recreate data files.')
