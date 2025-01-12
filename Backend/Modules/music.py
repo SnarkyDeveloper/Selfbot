@@ -130,17 +130,17 @@ class Music(commands.Cog):
                 await voice_client.disconnect()
             return
 
-        queue_entry = (file_path, info['title'], info.get('uploader', 'Unknown'))
+        artist = info.get('uploader', 'Unknown')
+        if artist.endswith("- Topic"):
+            artist = artist[:-8].strip()
+        queue_entry = (file_path, info['title'], artist)
         queue.append(queue_entry)
 
         if not voice_client.is_playing():
             await self._play_next(ctx, voice_client)
         else:
-            artist = info.get('uploader', 'Unknown')
-            if artist.endswith("- Topic"):
-                artist = artist[:-6].strip()
             await send(self.bot, ctx, title="Added to Queue", 
-                      content=f"🎵 Added {info['title']} by {info['uploader']}", color=0x2ECC71)
+                      content=f"🎵 Added {info['title']} by {artist}", color=0x2ECC71)
 
     async def _play_next(self, ctx, voice_client: discord.VoiceClient):
         if not voice_client or not voice_client.is_connected():
@@ -148,6 +148,11 @@ class Music(commands.Cog):
 
         queue = self._get_queue(ctx)
         queue_id = self._get_queue_id(ctx)
+
+        if self.loops.get(queue_id, False) and self.current_tracks.get(queue_id):
+            title, author = self.current_tracks[queue_id]
+            file_path = os.path.join(self.audio_dir, f"{title.replace(' ', '_')}.mp3")
+            queue.append((file_path, title, author))
 
         if not queue:
             if not self.loops.get(queue_id, False):
@@ -193,7 +198,7 @@ class Music(commands.Cog):
 
     @commands.command(description="Set volume (0-200)")
     async def volume(self, ctx, volume: int):
-        """Set the volume of the bot"""
+        volume = int(volume)
         if not 0 <= volume <= 200:
             await send(self.bot, ctx, title="Error", 
                       content="Volume must be between 0 and 200", color=0xFF0000)
@@ -224,7 +229,6 @@ class Music(commands.Cog):
         status = "enabled" if self.loops[queue_id] else "disabled"
         await send(self.bot, ctx, title="Loop", 
                   content=f"🔄 Loop mode {status}", color=0x2ECC71)
-
     @commands.command(name="now", description="Show current track")
     async def now_playing(self, ctx):
         queue_id = self._get_queue_id(ctx)
@@ -238,6 +242,29 @@ class Music(commands.Cog):
         title, author = current
         await send(self.bot, ctx, title="Now Playing", 
                   content=f"🎵 {title} by {author}", color=0x2ECC71)
+    @commands.command(description="Skip current track")
+    async def skip(self, ctx):
+        voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild if ctx.guild else None)
+        
+        if voice_client and voice_client.is_playing():
+            voice_client.stop()
+            await send(self.bot, ctx, title="Skipped", content="⏭️ Skipped current track", color=0x2ECC71)
+        else:
+            await send(self.bot, ctx, title="Cannot Skip", content="Nothing is playing!", color=0xFF0000)
+
+    @commands.command(description="Stop playback and clear queue")
+    async def stop(self, ctx):
+        queue_id = self._get_queue_id(ctx)
+        voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild if ctx.guild else None)
+        
+        if voice_client and voice_client.is_connected():
+            self.queues[queue_id] = []
+            self.current_tracks[queue_id] = None
+            voice_client.stop()
+            await voice_client.disconnect()
+            await send(self.bot, ctx, title="Stopped", content="⏹️ Playback stopped and queue cleared", color=0x2ECC71)
+        else:
+            await send(self.bot, ctx, title="Cannot Stop", content="Not connected to a voice channel!", color=0xFF0000)
 
 async def setup(bot):
     await bot.add_cog(Music(bot))
