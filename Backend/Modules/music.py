@@ -136,6 +136,9 @@ class Music(commands.Cog):
         if not voice_client.is_playing():
             await self._play_next(ctx, voice_client)
         else:
+            artist = info.get('uploader', 'Unknown')
+            if artist.endswith("- Topic"):
+                artist = artist[:-6].strip()
             await send(self.bot, ctx, title="Added to Queue", 
                       content=f"🎵 Added {info['title']} by {info['uploader']}", color=0x2ECC71)
 
