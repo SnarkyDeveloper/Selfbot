@@ -38,7 +38,6 @@ settings = read_settings()
 class setup_ai:
     def __init__(self):
         self.requirements = new_requirements
-        self.cuda = False
         self.reqs = ['diffusers==0.31.0', 'accelerate==1.1.1', 'huggingface-hub==0.26.3', 'tokenizers==0.20.3', 'transformers==4.46.3', 'torch==2.5.1', 'torchaudio==2.5.1', 'torchvision==0.20.1', 'sentencepiece==0.2.0']
     def add_reqs(self):
         self.requirements += self.reqs
@@ -47,12 +46,12 @@ class setup_ai:
                 new_requirements.append(line.strip())
         with open('../modules.json', 'r+') as m:
             data = json.load(m)
-            data['ollama'] = True
+            data['ai'] = True
             m.seek(0)
             json.dump(data, m, indent=4)
             m.truncate()
 
-if settings.get("main").get("first_run") == "True":
+if settings.get("main").get("first_run") == True:
     print("First run detected. Running setup...")
     if os.path.exists(f'{path}/venv'):
         print('Venv already exists.')

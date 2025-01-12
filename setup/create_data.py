@@ -11,7 +11,7 @@ def get_run():
         data = json.load(f)
         f.close()
     return data.get('main').get('first_run')
-if get_run() == 'True':
+if get_run() == True:
     def create_users():
         try:
             os.makedirs(f'{path}/data/users', exist_ok=True)
@@ -86,7 +86,7 @@ if get_run() == 'True':
         try:
             with open(f'{path}/settings.json', 'w') as f:
                 data = json.loads(f)
-                data.update({'main': {'first_run': 'False'}})
+                data.update({'main': {'first_run': False}})
                 json.dump(data, f, indent=4)
                 f.close()
         except Exception as e:

@@ -7,7 +7,7 @@ with open('modules.json') as f:
 loaded = []
 
 async def setup_cogs():
-    if read_settings().get('main').get('first_run') == 'True':
+    if read_settings().get('main').get('first_run') == True:
         await bot.load_extension('Backend.Modules.setup')
         return
     for module, enabled in modules['loaded'].items():
