@@ -14,7 +14,7 @@ class Quote(commands.Cog):
             if ctx.message.reference:
                 message_id = ctx.message.reference.message_id
             else:
-                await ctx.send("Please provide a message ID or reply to a message")
+                await send(self.bot, ctx, color=0xFF0000, title="Error", content="Please provide a message ID or reply to a message")
                 return
                 
         try:
@@ -99,7 +99,8 @@ class Quote(commands.Cog):
                 
                 content = message.content.encode("ascii", errors="ignore").decode()
                 for user in message.mentions:
-                    content = content.replace(f"@{user.name}", f"@{user.display_name}")
+                    content = content.replace(f"<@{user.id}>", f"@{user.display_name}")
+                    content = content.replace(f"<@!{user.id}>", f"@{user.display_name}")
                 
                 font, lines = get_optimal_font_size(
                     content, 
@@ -142,9 +143,9 @@ class Quote(commands.Cog):
                 if os.path.exists(f"{path}/output.png"):
                     os.remove(f"{path}/output.png")
         except discord.NotFound:
-            await ctx.send("Message not found")
+            await send(self.bot, ctx, title="Error", content="Message not found", color=0xFF0000)
         except Exception as e:
-            await ctx.send(f"Error: {str(e)}")
+            await send(self.bot, ctx, title="Error", content=f"Error: {str(e)}", color=0xFF0000)
 
 async def setup(bot):
     await bot.add_cog(Quote(bot))
