@@ -25,7 +25,7 @@ class Define(commands.Cog):
         if not definition or not definition[1]:
             await send(self.bot, ctx, title='Error', content="Definition not found.", color=0xFF0000)
         else:
-            word_type = ''.join(c for c in definition[0] if c.isalpha() or c.isspace())
+            word_type = '/'.join(c for c in definition[0] if c.isalpha() or c.isspace())
             await send(self.bot, ctx, title=word.title(), content=f'**Type:** {word_type}\n\n**Definition:** {definition[1]}', color=0x2ECC71)
 
 async def setup(bot):

@@ -26,13 +26,16 @@ class Stealer(commands.Cog):
             emojis_to_steal = []
             added_emojis = []
             existing_emoji_names = {emoji.name for emoji in ctx.guild.emojis}
-            
+            existing_sticker_names = {sticker.name for sticker in ctx.guild.stickers}
             if ctx.message.reference:
                 message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
             else:
                 message = ctx.message
 
             for sticker in message.stickers:
+                if sticker.name in existing_sticker_names:
+                    stolen_assets.append(f"❌ Emoji: `{emoji.name}` already exists")
+                    continue
                 file_extension = 'gif' if sticker.format == discord.StickerFormatType.gif else 'png'
                 file_path = f"{sticker.id}.{file_extension}"
                 
