@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
-from discord.ext.commands import has_permissions, PartialEmojiConverter
+from discord.ext.commands import has_permissions
 import aiohttp
 import os
-import io
 from Backend.send import send
+
 class Stealer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -20,15 +20,18 @@ class Stealer(commands.Cog):
 
     @commands.command(description="Steal emojis and stickers")
     @has_permissions(manage_emojis=True)
-    async def steal(self, ctx, *emojis: discord.PartialEmoji):
+    async def steal(self, ctx, *args):
         try:
             stolen_assets = []
+            emojis_to_steal = []
+            added_emojis = []
+            existing_emoji_names = {emoji.name for emoji in ctx.guild.emojis}
             
             if ctx.message.reference:
                 message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
                 
                 for sticker in message.stickers:
-                    file_extension = 'json' if sticker.format == discord.StickerFormatType.lottie else 'png'
+                    file_extension = 'gif' if sticker.format == discord.StickerFormatType.gif else 'png'
                     file_path = f"{sticker.id}.{file_extension}"
                     
                     if await self.download_asset(sticker.url, file_path):
@@ -41,20 +44,32 @@ class Stealer(commands.Cog):
                                     file=discord.File(image_file),
                                     reason=f'Stolen by {ctx.author}'
                                 )
-                                stolen_assets.append(f"Sticker: {added.name}")
+                                stolen_assets.append(f"✔️ Sticker: `{added.name}`")
                             except Exception as e:
                                 print(f"Error creating sticker {sticker.name}: {e}")
                         os.remove(file_path)
                 
                 for word in message.content.split():
                     if word.startswith("<:") or word.startswith("<a:"):
-                        emoji = discord.PartialEmoji.from_str(word)
-                        emojis = (*emojis, emoji)
+                        try:
+                            emoji = discord.PartialEmoji.from_str(word)
+                            emojis_to_steal.append(emoji)
+                        except:
+                            continue
 
-            for emoji in emojis:
-                if not isinstance(emoji, discord.PartialEmoji):
-                    emoji = discord.PartialEmoji.from_str(str(emoji))
-                
+            for arg in args:
+                if str(arg).startswith("<:") or str(arg).startswith("<a:"):
+                    try:
+                        emoji = discord.PartialEmoji.from_str(str(arg))
+                        emojis_to_steal.append(emoji)
+                    except:
+                        continue
+
+            for emoji in emojis_to_steal:
+                if emoji.name in existing_emoji_names:
+                    stolen_assets.append(f"❌ Emoji: `{emoji.name}` already exists")
+                    continue
+                    
                 file_extension = 'gif' if emoji.animated else 'png'
                 file_path = f"{emoji.id}.{file_extension}"
                 emoji_url = f"https://cdn.discordapp.com/emojis/{emoji.id}.{file_extension}"
@@ -67,14 +82,24 @@ class Stealer(commands.Cog):
                                 image=image_file.read(),
                                 reason=f'Stolen by {ctx.author} with name {emoji.name}'
                             )
-                            stolen_assets.append(f"Emoji: :{added.name}:")
+                            stolen_assets.append(f"✔️ Emoji Added: `:{added.name}:`")
+                            added_emojis.append(added)
                         except:
                             pass
                     os.remove(file_path)
 
+            try:
+                for emoji in added_emojis:
+                    try:
+                        await ctx.message.add_reaction(emoji)
+                    except:
+                        continue
+            except:
+                pass
+
             if stolen_assets:
-                content = "Successfully stolen:\n" + "\n".join(stolen_assets)
-                await send(self.bot, ctx, title='Assets Stolen', content=content, color=0x2ECC71)
+                content = f"Successfully stolen:\n {"\n".join(stolen_assets)}"
+                await send(self.bot, ctx, title='Assets Stolen', content=f'{content} \nStolen By {ctx.author.mention}', color=0x2ECC71)
             else:
                 await send(self.bot, ctx, title='Error', content="No assets were found to steal.", color=0xff0000)
         except discord.Forbidden:
