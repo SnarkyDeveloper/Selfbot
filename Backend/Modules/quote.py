@@ -19,7 +19,7 @@ class Quote(commands.Cog):
                 
         try:
             async with ctx.typing():
-                message = await ctx.fetch_message(message_id)
+                message = await ctx.fetch_message(int(message_id))
                 author_name = message.author.name
                 image = Image.open(f"{path}/{mode}.png")
                 font = ImageFont.truetype(f"{path}/font.otf", 36)
