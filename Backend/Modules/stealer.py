@@ -29,33 +29,35 @@ class Stealer(commands.Cog):
             
             if ctx.message.reference:
                 message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            else:
+                message = ctx.message
+
+            for sticker in message.stickers:
+                file_extension = 'gif' if sticker.format == discord.StickerFormatType.gif else 'png'
+                file_path = f"{sticker.id}.{file_extension}"
                 
-                for sticker in message.stickers:
-                    file_extension = 'gif' if sticker.format == discord.StickerFormatType.gif else 'png'
-                    file_path = f"{sticker.id}.{file_extension}"
-                    
-                    if await self.download_asset(sticker.url, file_path):
-                        with open(file_path, 'rb') as image_file:
-                            try:
-                                added = await ctx.guild.create_sticker(
-                                    name=sticker.name,
-                                    description=f"Stolen by {ctx.author}",
-                                    emoji="👍",
-                                    file=discord.File(image_file),
-                                    reason=f'Stolen by {ctx.author}'
-                                )
-                                stolen_assets.append(f"✔️ Sticker: `{added.name}`")
-                            except Exception as e:
-                                print(f"Error creating sticker {sticker.name}: {e}")
-                        os.remove(file_path)
-                
-                for word in message.content.split():
-                    if word.startswith("<:") or word.startswith("<a:"):
+                if await self.download_asset(sticker.url, file_path):
+                    with open(file_path, 'rb') as image_file:
                         try:
-                            emoji = discord.PartialEmoji.from_str(word)
-                            emojis_to_steal.append(emoji)
-                        except:
-                            continue
+                            added = await ctx.guild.create_sticker(
+                                name=sticker.name,
+                                description=f"Stolen by {ctx.author}",
+                                emoji="👍",
+                                file=discord.File(image_file),
+                                reason=f'Stolen by {ctx.author}'
+                            )
+                            stolen_assets.append(f"✅ Sticker: `{added.name}`")
+                        except Exception as e:
+                            print(f"Error creating sticker {sticker.name}: {e}")
+                    os.remove(file_path)
+
+            for word in message.content.split():
+                if word.startswith("<:") or word.startswith("<a:"):
+                    try:
+                        emoji = discord.PartialEmoji.from_str(word)
+                        emojis_to_steal.append(emoji)
+                    except:
+                        continue
 
             for arg in args:
                 if str(arg).startswith("<:") or str(arg).startswith("<a:"):
@@ -82,7 +84,7 @@ class Stealer(commands.Cog):
                                 image=image_file.read(),
                                 reason=f'Stolen by {ctx.author} with name {emoji.name}'
                             )
-                            stolen_assets.append(f"✔️ Emoji Added: `:{added.name}:`")
+                            stolen_assets.append(f"✅ Emoji Added: `:{added.name}:`")
                             added_emojis.append(added)
                         except:
                             pass
@@ -98,7 +100,7 @@ class Stealer(commands.Cog):
                 pass
 
             if stolen_assets:
-                content = f"Successfully stolen:\n {"\n".join(stolen_assets)}"
+                content = f"Successfully stolen:\n {'\n'.join(stolen_assets)}"
                 await send(self.bot, ctx, title='Assets Stolen', content=f'{content} \nStolen By {ctx.author.mention}', color=0x2ECC71)
             else:
                 await send(self.bot, ctx, title='Error', content="No assets were found to steal.", color=0xff0000)
