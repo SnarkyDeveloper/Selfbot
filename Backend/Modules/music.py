@@ -15,7 +15,8 @@ class Music(commands.Cog):
         self.queues = {}
         self.loops = {}
         self.current_tracks = {}
-        self.audio_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../audio')
+        self.now_playing_messages = {}
+        self.audio_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'audio')
         os.makedirs(self.audio_dir, exist_ok=True)
         self.volume = 100
 
@@ -45,7 +46,7 @@ class Music(commands.Cog):
             if error:
                 return None, error, None
 
-            safe_title = info['title'].replace(' ', '_').encode("ascii", errors="ignore").decode()
+            safe_title = f'{info['title']}-{info["uploader"]}'.replace(' ', '_').encode("ascii", errors="ignore").decode()
             file_path = os.path.join(self.audio_dir, f"{safe_title}.mp3")
         
             if not os.path.exists(file_path):
@@ -57,8 +58,10 @@ class Music(commands.Cog):
                         'preferredquality': '192',
                     }],
                     'outtmpl': file_path[:-4],
-                    'quiet': True,
-                    'no_warnings': True
+                    'no_warnings': True,
+                    'extract_audio': True,
+                    'audio_format': 'mp3',
+                    'prefer_ffmpeg': True
                 }
             
                 async with ctx.typing():
@@ -121,11 +124,12 @@ class Music(commands.Cog):
             if not voice_client:
                 return
 
-        await send(self.bot, ctx, title="🔍 Searching", content=f"Looking for: {query}", color=0xFEE75C)
+        await ctx.message.add_reaction('🔎')
         info, error, file_path = await self.download_song(query, ctx)
             
         if error:
             await send(self.bot, ctx, title="Error", content=error, color=0xFF0000)
+            await ctx.message.remove_reaction('🔎', self.bot.user)
             if not queue:
                 await voice_client.disconnect()
             return
@@ -135,7 +139,7 @@ class Music(commands.Cog):
             artist = artist[:-8].strip()
         queue_entry = (file_path, info['title'], artist)
         queue.append(queue_entry)
-
+        await ctx.message.remove_reaction('🔎', self.bot.user)
         if not voice_client.is_playing():
             await self._play_next(ctx, voice_client)
         else:
@@ -148,7 +152,11 @@ class Music(commands.Cog):
 
         queue = self._get_queue(ctx)
         queue_id = self._get_queue_id(ctx)
-
+        if queue_id in self.now_playing_messages:
+            try:
+                await self.now_playing_messages[queue_id].delete()
+            except:
+                pass
         if self.loops.get(queue_id, False) and self.current_tracks.get(queue_id):
             title, author = self.current_tracks[queue_id]
             file_path = os.path.join(self.audio_dir, f"{title.replace(' ', '_')}.mp3")
@@ -173,7 +181,7 @@ class Music(commands.Cog):
                 file_path,
                 options=f'-vn -b:a 128k -bufsize 64k -ar 48000 -filter:a "volume={self.volume/100}"'
             )
-            
+        
             voice_client.play(
                 audio_source,
                 after=lambda e: asyncio.run_coroutine_threadsafe(
@@ -181,10 +189,9 @@ class Music(commands.Cog):
                     self.bot.loop
                 )
             )
-            
-            await send(self.bot, ctx, title="Now Playing", 
-                      content=f"🎵 Playing {title} by {author}", color=0x2ECC71)
-            
+            message = await send(self.bot, ctx, title="Now Playing", content=f"🎵 Playing {title} by {author}", color=0x2ECC71)
+            self.now_playing_messages[queue_id] = message
+        
         except Exception as e:
             await send(self.bot, ctx, title="Error", 
                       content=f"Playback error: {str(e)}", color=0xFF0000)
@@ -248,7 +255,7 @@ class Music(commands.Cog):
         
         if voice_client and voice_client.is_playing():
             voice_client.stop()
-            await send(self.bot, ctx, title="Skipped", content="⏭️ Skipped current track", color=0x2ECC71)
+            await ctx.message.add_reaction('⏭️')
         else:
             await send(self.bot, ctx, title="Cannot Skip", content="Nothing is playing!", color=0xFF0000)
 
