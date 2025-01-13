@@ -103,7 +103,8 @@ class Stealer(commands.Cog):
                 pass
 
             if stolen_assets:
-                content = f"Successfully stolen:\n {'\n'.join(stolen_assets)}"
+                newline = '\n'
+                content = f"Successfully stolen: {newline}{'{newline}'.join(stolen_assets)}"
                 await send(self.bot, ctx, title='Assets Stolen', content=f'{content} \nStolen By {ctx.author.mention}', color=0x2ECC71)
             else:
                 await send(self.bot, ctx, title='Error', content="No assets were found to steal.", color=0xff0000)
