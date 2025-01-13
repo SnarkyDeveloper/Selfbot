@@ -5,6 +5,8 @@ import ctypes
 path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 class AdminStateUnknownError(Exception):
     pass
+if os.path.exists(f'{path}/settings.example.json') and not os.path.exists(f'{path}/settings.json'):
+    os.rename(f'{path}/settings.example.json', f'{path}/settings.json')
 def read_settings():
     with open(f'{path}/settings.json', 'r') as f:
         data = json.load(f)
