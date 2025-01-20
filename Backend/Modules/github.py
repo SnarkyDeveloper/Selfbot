@@ -2,10 +2,11 @@ import discord
 from discord.ext import commands
 import httpx
 import json
+from Backend.send import send
 class github(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    @commands.command(Description="Get information on a github repository")
+    @commands.command(Description="Get information on a github repository", aliases=["gh"])
     async def github(self, ctx, user: str = None, repo: str = None):
         if not user:
             await ctx.send(f'Not in user/repo format! Example: `>github snarkydeveloper/selfbot`')
@@ -26,6 +27,6 @@ class github(commands.Cog):
         repo_stars = response['stargazers_count']
         repo_top_language = response['language']
         full_repo_name = response['full_name']
-        await ctx.send(f'# {repo_name}\n{full_repo_name} | <{repo_url}>\nDescription | {repo_description}\nOwner | [{repo_owner}](<{repo_owner_url}>)\nStars | {repo_stars} :star: \nTop Language | {repo_top_language}')
+        await send(self.bot, ctx, title=f'{repo_name}', content=f'[{full_repo_name}](<{repo_url}>)\nDescription | {repo_description}\nOwner | [{repo_owner}](<{repo_owner_url}>)\nStars | {repo_stars} :star: \nTop Language | {repo_top_language}')
 async def setup(bot):
     await bot.add_cog(github(bot))

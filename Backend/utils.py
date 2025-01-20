@@ -53,3 +53,10 @@ def read_settings():
             return json.load(file)
     except FileNotFoundError:
         return {"settings": []}
+def is_owner(id):
+    data = read_settings()
+    if data.get('owner_id') is None:
+        return False
+    elif data.get('owner_id') != id:
+        return False
+    return True

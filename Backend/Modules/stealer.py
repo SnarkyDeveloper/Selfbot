@@ -1,72 +1,118 @@
 import discord
 from discord.ext import commands
-from discord.ext.commands import has_permissions, PartialEmojiConverter
+from discord.ext.commands import has_permissions
 import aiohttp
 import os
-import io
+from Backend.send import send
 
 class Stealer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(description="Steal an emoji")
+    async def download_asset(self, url, file_path):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    with open(file_path, 'wb') as file:
+                        file.write(await response.read())
+                    return True
+                return False
+
+    @commands.command(description="Steal emojis and stickers")
     @has_permissions(manage_emojis=True)
-    async def steal(self, ctx, emoji: discord.PartialEmoji = None):
-        print(f"{ctx.guild} {ctx.author} started stealing an emoji")
-
+    async def steal(self, ctx, *args):
         try:
-            if emoji is None:
-                print("No emoji provided, looking for one in the message")
+            stolen_assets = []
+            emojis_to_steal = []
+            added_emojis = []
+            existing_emoji_names = {emoji.name for emoji in ctx.guild.emojis}
+            existing_sticker_names = {sticker.name for sticker in ctx.guild.stickers}
+            if ctx.message.reference:
                 message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-                for e in message.content.split():
-                    if e.startswith("<:") or e.startswith("<a:"):
-                        emoji = discord.PartialEmoji.from_str(e)
-                        print(f"Found emoji {emoji}")
-                        break
-                else:
-                    print("No emoji found in the message")
-                    await ctx.send("No emoji found in the message.")
-                    return
+            else:
+                message = ctx.message
 
-            print(f"Emoji is {emoji} with type {type(emoji)}")
-            if type(emoji) != discord.PartialEmoji:
-                emoji = discord.PartialEmoji.from_str(emoji)
-            
-            emoji_url = f"https://cdn.discordapp.com/emojis/{emoji.id}.{'gif' if emoji.animated else 'png'}"
-            print(f"Emoji URL: {emoji_url}")
-            async with aiohttp.ClientSession() as session:
-                async with session.get(emoji_url) as response:
-                    if response.status == 200:
-                        file_extension = 'gif' if emoji.animated else 'png'
-                        file_path = f"{emoji.id}.{file_extension}"
-                        with open(file_path, 'wb') as file:
-                            file.write(await response.read())
-                        print(f"Saved emoji as {file_path}")
+            for sticker in message.stickers:
+                if sticker.name in existing_sticker_names:
+                    stolen_assets.append(f"❌ Emoji: `{emoji.name}` already exists")
+                    continue
+                file_extension = 'gif' if sticker.format == discord.StickerFormatType.gif else 'png'
+                file_path = f"{sticker.id}.{file_extension}"
+                
+                if await self.download_asset(sticker.url, file_path):
+                    with open(file_path, 'rb') as image_file:
+                        try:
+                            added = await ctx.guild.create_sticker(
+                                name=sticker.name,
+                                description=f"Stolen by {ctx.author}",
+                                emoji="👍",
+                                file=discord.File(image_file),
+                                reason=f'Stolen by {ctx.author}'
+                            )
+                            stolen_assets.append(f"✅ Sticker: `{added.name}`")
+                        except Exception as e:
+                            print(f"Error creating sticker {sticker.name}: {e}")
+                    os.remove(file_path)
 
-                        with open(file_path, 'rb') as image_file:
+            for word in message.content.split():
+                if word.startswith("<:") or word.startswith("<a:"):
+                    try:
+                        emoji = discord.PartialEmoji.from_str(word)
+                        emojis_to_steal.append(emoji)
+                    except:
+                        continue
+
+            for arg in args:
+                if str(arg).startswith("<:") or str(arg).startswith("<a:"):
+                    try:
+                        emoji = discord.PartialEmoji.from_str(str(arg))
+                        emojis_to_steal.append(emoji)
+                    except:
+                        continue
+
+            for emoji in emojis_to_steal:
+                if emoji.name in existing_emoji_names:
+                    stolen_assets.append(f"❌ Emoji: `{emoji.name}` already exists")
+                    continue
+                    
+                file_extension = 'gif' if emoji.animated else 'png'
+                file_path = f"{emoji.id}.{file_extension}"
+                emoji_url = f"https://cdn.discordapp.com/emojis/{emoji.id}.{file_extension}"
+                
+                if await self.download_asset(emoji_url, file_path):
+                    with open(file_path, 'rb') as image_file:
+                        try:
                             added = await ctx.guild.create_custom_emoji(
                                 name=emoji.name,
                                 image=image_file.read(),
                                 reason=f'Stolen by {ctx.author} with name {emoji.name}'
                             )
-                            print(f"Created custom emoji {added.name}")
+                            stolen_assets.append(f"✅ Emoji Added: `:{added.name}:`")
+                            added_emojis.append(added)
+                        except:
+                            pass
+                    os.remove(file_path)
 
-                        message = await ctx.send(f"Emoji {added.name} stolen! Use it with `:{added.name}:`")
-                        if not emoji.animated:
-                            await message.add_reaction(added)
+            try:
+                for emoji in added_emojis:
+                    try:
+                        await ctx.message.add_reaction(emoji)
+                    except:
+                        continue
+            except:
+                pass
 
-                        os.remove(file_path)
-                        print(f"Deleted the saved file {file_path}")
-
-                    else:
-                        print(f"Failed to fetch emoji image: {response.status}")
-                        await ctx.send(f"Failed to fetch emoji image from the server, status code: {response.status}")
+            if stolen_assets:
+                newline = '\n'
+                content = f"Successfully stolen: {newline}{'{newline}'.join(stolen_assets)}"
+                await send(self.bot, ctx, title='Assets Stolen', content=f'{content} \nStolen By {ctx.author.mention}', color=0x2ECC71)
+            else:
+                await send(self.bot, ctx, title='Error', content="No assets were found to steal.", color=0xff0000)
         except discord.Forbidden:
-            print("No permissions to add emojis")
-            await ctx.send("No permissions to add emojis, please give me the `Manage Emojis` permission.")
+            await send(self.bot, ctx, title='Error', content="Missing permissions. I need `Manage Emojis` and `Manage Stickers` permissions.", color=0xff0000)
         except Exception as e:
             print(f"Error: {e}")
-            await ctx.send("An error occurred while trying to steal the emoji.")
+            await send(self.bot, ctx, title='Error', content=f"An error occurred while stealing assets.", color=0xff0000)
 
 async def setup(bot):
     await bot.add_cog(Stealer(bot))

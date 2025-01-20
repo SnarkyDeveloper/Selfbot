@@ -3,6 +3,7 @@ import discord
 from main import start_time
 import time
 from Backend.utils import read_users
+from Backend.send import send
 class Statistics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -11,6 +12,7 @@ class Statistics(commands.Cog):
     async def statistics(self, ctx):
         commands = len(self.bot.commands)
         users=read_users()['users']
+        servers = read_users()['guilds']
         uptime_seconds = time.time() - start_time
         days = int(uptime_seconds // (24 * 3600))
         hours = int((uptime_seconds % (24 * 3600)) // 3600)
@@ -27,11 +29,16 @@ class Statistics(commands.Cog):
             if seconds:
                 parts.append(f"{seconds} seconds")
             return ", ".join(parts)
-        await ctx.send(f"`Uptime: {uptime(days, hours, minutes, seconds)}`\n`Total Users: {len(users)}`\n`Servers: {len(self.bot.guilds)}`\n`Total Commands: {commands}`\n`Project: github.com/SnarkyDeveloper/Selfbot (A star is much appreciated ⭐)`")
+        await send(self.bot, ctx, title="Statistics", content=f"Uptime: {uptime(days, hours, minutes, seconds)}\nTotal Users: {len(users)}\nServers: {len(servers)}\nTotal Commands: {commands}\nProject: github.com/SnarkyDeveloper/Selfbot (Please star ⭐)")
     @commands.command(description="Pong!")
     async def ping(self, ctx):
-        ping = await ctx.send(f"Pong!")
-        await ping.edit(content=f"Ping: {round(self.bot.latency*1000)}ms")
+        latency = round(self.bot.latency * 1000, 2)
+        if latency < 150:
+            await send(self.bot, ctx, title='Pong!', content=f'Latency: {latency} ms', color=0x2ECC71)
+        elif latency < 500:
+            await send(self.bot, ctx, title='Pong!', content=f'Latency: {latency} ms', color=0xFEE75C)
+        else:
+            await send(self.bot, ctx, title='Pong!', content=f'Latency: {latency} ms', color=0xE74C3C)
 
 async def setup(bot):
     await bot.add_cog(Statistics(bot))

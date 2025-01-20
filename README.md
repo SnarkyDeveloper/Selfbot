@@ -1,4 +1,3 @@
-
 # Snarky's Selfbot
 
 ![Project LOC](https://tokei.rs/b1/github/SnarkyDeveloper/Selfbot) ![GitHub Repo stars](https://img.shields.io/github/stars/SnarkyDeveloper/Selfbot?style=flat)
@@ -15,17 +14,61 @@ Yes, automating user accounts is against discord TOS, a normal bot rewrite is so
 
 @SnarkyDev on discord
 
-## Features
 
-- Reverse image searching (Broken, fixing)
-- Music Bot
-- Message Sniping
-- Moderation
-- Economy
-- AI features (Image Generation & Text Generation)
-- Fun commands!
+<details close>
+<summary><h3>Features</h3></summary>
+<!--All you need is a blank line-->
+
+- [✅] Music Bot
   
-# Coming Up
+   * Play
+   * Pause
+   * Resume
+   * Stop
+   * Loop
+   * Queue
+
+- [✅] Moderation
+
+  * Kick
+  * Ban
+  
+- [✅] Fun Commands
+  * Reactions | Kiss, Hug, Slap, Bite, Tickle
+  * Quote
+  * Fake tweet
+  * PetPet
+  * Lyrics
+ 
+- [✅] Utility
+    * Avatar
+    * AI Chat and Image Generation
+    * Full permissions system
+    * Message snipe
+    * Bot Stats
+
+- [✅] Economy
+  * Balance
+  * Work
+  * Daily
+  * Steal
+  * Stripper
+  * Mafia
+  * Gambling
+    * Roulette
+    * Coinflip
+    * Dice
+- [✅] Misc
+  * Reverse Image Searching [❌]
+  * QOTD
+  * Polls
+  * Github info
+- [❌] Spotify and music integration
+  * Control Currently playing music
+  * Get current song
+</details>
+
+## Coming Up
 
 - Spotify Integration for playback controls (Will require seperate flask server)
 
@@ -40,32 +83,32 @@ To run this project, you will need to add the following environment variables to
 Clone the project
 
 ```bash
-  git clone https://github.com/SnarkyDeveloper/Selfbot
+git clone https://github.com/SnarkyDeveloper/Selfbot
 ```
 
 Go to the project directory
 
 ```bash
-  cd Selfbot
+cd Selfbot
 ```
 
 Create your venv
 
 ```python
-    python -m venv venv
-    #(Ensure its called venv or start script won't work)
+python -m venv venv
+#(Ensure its called venv or start script won't work)
 ```
 
 Install dependencies
 
 ```bash
-  pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Configure your settings
 
 ```text
-    Just add your desired settings in settings.json
+Just add your desired settings in settings.json
 ```
 
 Rename settings.example.json to settings.json and add your desired settings
@@ -73,11 +116,15 @@ Rename settings.example.json to settings.json and add your desired settings
 Start the bot
 
 ```bash
-  Either python main.py
-  or 
-  .\start.bat 
-  .\start.sh
+  # Either python main.py
+  # or 
+.\start.bat 
+.\start.sh
 ```
+
+### Setup
+
+Use a server of your own or create one and run prefixsetup, (I. E. !setup) in the channel you want your webhook messages sent.
 
 ## Contributing
 

@@ -2,7 +2,7 @@ import httpx
 import discord
 from discord.ext import commands
 import os
-
+from Backend.send import send
 class PetPet(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -17,10 +17,12 @@ class PetPet(commands.Cog):
         if response.status_code == 200:
             with open(f'petpet_{user.id}.gif', 'wb') as f:
                 f.write(response.content)
-            await ctx.send(file=discord.File(f'petpet_{user.id}.gif'))
-            os.remove(f'petpet_{user.id}.gif')
+            try:
+                await send(self.bot, ctx, title=f'Heh that tickles-', image=f'petpet_{user.id}.gif')
+            finally:
+                os.remove(f'petpet_{user.id}.gif')
         else:
-            await ctx.send('Failed to generate petpet image.')
+            await send(self.bot, ctx, title='Error', content='Failed to generate petpet image.', color=0xFF0000)
 
 async def setup(bot):
     await bot.add_cog(PetPet(bot))

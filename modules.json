@@ -1,0 +1,27 @@
+{
+    "loaded": {
+        "calculator": true,
+        "choose": true,
+        "perms": true,
+        "snipe": true,
+        "music": true,
+        "avatar": true,
+        "quote": true,
+        "ai": false,
+        "reverse": true,
+        "dictionary": true,
+        "afk": true,
+        "qotd": true,
+        "lyrics": true,
+        "statistics": true,
+        "polls": true,
+        "github": true,
+        "reactions": true,
+        "tweet": true,
+        "petpet": true,
+        "stealer": true,
+        "help": true,
+        "economy": true,
+        "timezone": true
+    }
+}

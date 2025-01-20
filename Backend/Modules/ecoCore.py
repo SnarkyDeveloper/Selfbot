@@ -9,13 +9,11 @@ def read_eco():
         with open('data/economy/eco.json', 'r', encoding='utf-8') as file:
             return json.load(file)
     except FileNotFoundError:
-        # Initialize with empty structure if file doesn't exist
         default_data = {"users": []}
         write_eco(default_data)
         return default_data
 
 def write_eco(data):
-    # Ensure directory exists
     os.makedirs('data/economy', exist_ok=True)
     with open('data/economy/eco.json', 'w', encoding='utf-8') as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
@@ -33,7 +31,6 @@ class Economy:
             write_eco({"users": []})
     
     def get_cooldown(self, user_id, cooldown_type):
-        """Get the timestamp of the last cooldown action for a user"""
         data = read_eco()
         for entry in data["users"]:
             if entry["user"] == str(user_id):

@@ -1,38 +1,38 @@
 import discord
 from discord.ext import commands
-import asyncio
-
+from Backend.send import send
 class Avatar(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.command(name="avatar", description="Get the avatar of a user", aliases=["av"])
+    @commands.command(description="Get the avatar of a user", aliases=['av'])
     async def avatar(self, ctx, user: discord.Member = None):
-
-        member = user or ctx.author
-        avatar_url = member.display_avatar.url
-        await ctx.send(avatar_url)
-
-    @commands.command(name="avatar_server", description="Get the avatar of the server", aliases=["as"])
-    async def avatar_server(self, ctx):
-
-        guild_avatar = ctx.author.guild_avatar
-        if guild_avatar:
-            await ctx.send(guild_avatar.url)
+        if not user:
+            user = ctx.author
         else:
-            await ctx.send("You don't have a server-specific avatar!")
+            user = await commands.UserConverter().convert(ctx, user)
+        await send(self.bot, ctx, title=f'{user.display_name}\'s Avatar', image=user.avatar.url)
 
+    @commands.command(name="sv", description="Get the avatar of the server", aliases=["as", "sav"])
+    async def sv(self, ctx, user: discord.Member = None):
+        if not user:
+            user = ctx.author
+        else:
+            user = await commands.UserConverter().convert(ctx, user)
+        if user.display_avatar != user.avatar:
+            guild_avatar = user.display_avatar
+        if guild_avatar:
+            await send(self.bot, ctx, title="Server Avatar", image=user.guild_avatar.url)
+        else:
+            await send(self.bot, ctx, title=f'Error', content="The server doesn't have a server specific avatar!", color=0xFF0000)
     @commands.command(name="banner", description="Get the banner of a user")
     async def banner(self, ctx, user: discord.Member = None):
         if not user:
-            user = ctx.author.id
+            user = str(ctx.author.id)
+        user = await commands.UserConverter().convert(ctx, user)
+        if user.banner:
+            await send(self.bot, ctx, title=f'{user.display_name}\'s Banner', image=user.banner.url)
         else:
-            user = int(str(user).strip('<@!>'))
-        user_data = await self.bot.fetch_user(user)
-        if user_data.banner:
-            await ctx.send(user_data.banner.url)
-        else:
-            await ctx.send("The user doesn't have a banner!")
+            await send(self.bot, ctx, title=f'Error', content="The user doesn't have a banner!", color=0xFF0000)
 
 async def setup(bot):
     await bot.add_cog(Avatar(bot))

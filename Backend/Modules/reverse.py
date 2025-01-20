@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import json
 import re
 from urllib.parse import quote
+from Backend.send import send
 results = []
 sys.stdout.reconfigure(encoding='utf-8')
 def reverse_search(image_url):

@@ -2,35 +2,31 @@ import re
 from discord.ext import commands
 from PyMultiDictionary import MultiDictionary
 dictionary = MultiDictionary()
+from Backend.send import send
 class Define(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(description='Define a word', aliases=['def'])
-    async def define(self, ctx, id=None):
-        ctx2 = ctx.message.content.replace(">def ", "", 1).strip()
+    async def define(self, ctx, word=None):
         if ctx.message.reference:
-            id = ctx.message.reference.message_id
-        elif id is None and not ctx2:
-            await ctx.send("Please provide a message ID or reply to a message")
+            ref_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            word = word or ref_message.content.strip()
+        elif word is None:
+            await send(self.bot, ctx, title='Error', content="Please reply to a message or provide a word.", color=0xFF0000)
             return
-        elif ctx2: 
-            message = ctx2
+
+        try:
+            definition = dictionary.meaning('en', word)
+        except Exception as e:
+            await send(self.bot, ctx, title='Error', content=f"An error occurred while fetching the definition: {e}", color=0xFF0000)
+            return
+
+        if not definition or not definition[1]:
+            await send(self.bot, ctx, title='Error', content="Definition not found.", color=0xFF0000)
         else:
-            id = ctx.message.id
-        
-        if id and isinstance(id, int):
-            message = (await ctx.fetch_message(id)).content if await ctx.fetch_message(id) else None
-        
-        if message:
-            definition = dictionary.meaning('en', message)
-            if not definition[1]:
-                await ctx.send("Definition not found")
-            else:
-                result = ''.join(c for c in definition[0] if c.isalpha() or c.isspace())
-                await ctx.send(f'# {message.title()}: \n**Type:** {result} \n**Definition:** {definition[1]}')
-        else:
-            await ctx.send("Message not found")
+            word_type = '/'.join(c for c in definition[0] if c.isalpha() or c.isspace())
+            await send(self.bot, ctx, title=word.title(), content=f'**Type:** {word_type}\n\n**Definition:** {definition[1]}', color=0x2ECC71)
 
 async def setup(bot):
     await bot.add_cog(Define(bot))

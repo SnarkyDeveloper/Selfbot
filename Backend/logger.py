@@ -21,6 +21,8 @@ async def on_message_delete(message):
     if message.author.bot:
         return
     user = message.author
+    if not message.content:
+        return
     messages_data = read_messages()
     messages_data["messages"].append({
             "user": str(user),
@@ -44,6 +46,7 @@ async def on_message_edit(before, after):
         "message_link": f"https://discord.com/channels/{before.guild.id if before.guild else '@me'}/{before.channel.id}/{before.id}"
     })
     write_messages(messages_data)
+    await bot.parse(after)
 
 def logger():
     bot.add_listener(on_message_delete, "on_message_delete")

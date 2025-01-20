@@ -1,7 +1,7 @@
 from Backend.Modules.ecoCore import Economy as EcoCore
 from discord.ext import commands
 import discord
-
+from Backend.send import send
 class Balance(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -10,18 +10,18 @@ class Balance(commands.Cog):
     @commands.command(description="Check your balance", aliases=["bal"])
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def balance_cmd(self, ctx, user: discord.Member = None):
-        print(f"Balance command called with user: {user}")
         if user is None:
             user = ctx.author
+        else:
+            user = await commands.UserConverter().convert(ctx, user)
         try:
-            # Ensure user exists in database
             self.db.user_exists(user.id)
             balance = self.db.get_balance(user.id)
             print(f"Retrieved balance for {user} (ID: {user.id}): ${balance}")
-            await ctx.send(f"{user.mention}'s balance is **${balance:,}**")
+            await send(self.bot, ctx, title=f"{user.display_name}'s Balance", content=f"{user.mention}'s balance is **${balance:,}**", color=0x2ECC71)
         except Exception as e:
             print(f"Error in balance command: {e}")
-            await ctx.send("An error occurred while checking the balance.")
+            await send(self.bot, ctx, title="Error", content="An error occurred while checking the balance.", color=0xFF0000)
 
 async def setup(bot):
     balance_cog = Balance(bot)
