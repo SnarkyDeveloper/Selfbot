@@ -12,14 +12,14 @@ class Avatar(commands.Cog):
             user = await commands.UserConverter().convert(ctx, user)
         await send(self.bot, ctx, title=f'{user.display_name}\'s Avatar', image=user.avatar.url)
 
-    @commands.command(name="sv", description="Get the avatar of the server", aliases=["as"])
+    @commands.command(name="sv", description="Get the avatar of the server", aliases=["as", "sav"])
     async def sv(self, ctx, user: discord.Member = None):
         if not user:
             user = ctx.author
         else:
             user = await commands.UserConverter().convert(ctx, user)
-        if user.guild_avatar:
-            guild_avatar = user.guild_avatar
+        if user.display_avatar != user.avatar:
+            guild_avatar = user.display_avatar
         if guild_avatar:
             await send(self.bot, ctx, title="Server Avatar", image=user.guild_avatar.url)
         else:
