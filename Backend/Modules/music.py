@@ -68,7 +68,7 @@ class Music(commands.Cog):
                     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                         ydl.download([info['webpage_url']])
                 
-            await self._clean_old_files()
+            await self._clean_old_files() #change max_files to whatever 
             return info, None, file_path
             
         except Exception as e:
@@ -159,7 +159,8 @@ class Music(commands.Cog):
                 pass
         if self.loops.get(queue_id, False) and self.current_tracks.get(queue_id):
             title, author = self.current_tracks[queue_id]
-            file_path = os.path.join(self.audio_dir, f"{title.replace(' ', '_')}.mp3")
+            safe_title = f"{title}-{author}".replace(' ', '_').encode("ascii", errors="ignore").decode()
+            file_path = os.path.join(self.audio_dir, f"{safe_title}.mp3")
             queue.append((file_path, title, author))
 
         if not queue:
@@ -181,7 +182,7 @@ class Music(commands.Cog):
                 file_path,
                 options=f'-vn -b:a 128k -bufsize 64k -ar 48000 -filter:a "volume={self.volume/100}"'
             )
-        
+    
             voice_client.play(
                 audio_source,
                 after=lambda e: asyncio.run_coroutine_threadsafe(
@@ -191,7 +192,7 @@ class Music(commands.Cog):
             )
             message = await send(self.bot, ctx, title="Now Playing", content=f"🎵 Playing {title} by {author}", color=0x2ECC71)
             self.now_playing_messages[queue_id] = message
-        
+    
         except Exception as e:
             await send(self.bot, ctx, title="Error", 
                       content=f"Playback error: {str(e)}", color=0xFF0000)

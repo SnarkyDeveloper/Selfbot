@@ -12,6 +12,7 @@ class Statistics(commands.Cog):
     async def statistics(self, ctx):
         commands = len(self.bot.commands)
         users=read_users()['users']
+        servers = read_users()['guilds']
         uptime_seconds = time.time() - start_time
         days = int(uptime_seconds // (24 * 3600))
         hours = int((uptime_seconds % (24 * 3600)) // 3600)
@@ -28,7 +29,7 @@ class Statistics(commands.Cog):
             if seconds:
                 parts.append(f"{seconds} seconds")
             return ", ".join(parts)
-        await send(self.bot, ctx, title="Statistics", content=f"Uptime: {uptime(days, hours, minutes, seconds)}\nTotal Users: {len(users)}\nServers: {len(self.bot.guilds)}\nTotal Commands: {commands}\nProject: github.com/SnarkyDeveloper/Selfbot (Please star ⭐)")
+        await send(self.bot, ctx, title="Statistics", content=f"Uptime: {uptime(days, hours, minutes, seconds)}\nTotal Users: {len(users)}\nServers: {len(servers)}\nTotal Commands: {commands}\nProject: github.com/SnarkyDeveloper/Selfbot (Please star ⭐)")
     @commands.command(description="Pong!")
     async def ping(self, ctx):
         latency = round(self.bot.latency * 1000, 2)

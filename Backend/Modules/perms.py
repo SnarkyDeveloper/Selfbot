@@ -9,17 +9,17 @@ class perms(commands.Cog):
     @commands.command(description='Add a user to the allowed list')
     async def adduser(self, ctx, user_mention: str):
         if int(ctx.author.id) == int(self.bot.user.id) or int(ctx.author.id) == self.owner_id:
-            user_id = user_mention.strip('<@!>')
+            user = await commands.UserConverter().convert(ctx, user_mention)
             users_data = read_users()
             if user_mention in [u["id"] for u in users_data["users"]]:
                 await send(self.bot, ctx, title='Error', content=f'User already whitelisted!', color=0xff0000)
                 return
             users_data["users"].append({
-                "id": str(user_id),
-                "name": f"User_{user_id}"
+                "id": str(user.id),
+                "name": f"{user.name}"
             })
             write_users(users_data)
-            await send(self.bot, ctx, title='Success', content=f'Added user with ID: {user_id}', color=0x2ECC71)
+            await send(self.bot, ctx, title='Success', content=f'Added user with ID: {user.id}', color=0x2ECC71)
         else:
             await send(self.bot, ctx, title='Error', content="You are not allowed to use this command", color=0xff0000)
 
