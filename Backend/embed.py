@@ -21,6 +21,7 @@ with open(f'{path}/data/webhook.json') as f:
 class CreateEmbed:
     def __init__(self):
         self.webhook_url = webhook_url
+
     async def send_file(self, file, webhook):
         if not os.path.exists(file):
             print("File does not exist")
@@ -43,11 +44,14 @@ class CreateEmbed:
             print(f'Failed to send file: {response.status_code}, {response.text}')
             return None
 
-    async def embed(self, ctx, title, content, color=0x000000, image=None, video=None):
+    async def embed(self, ctx, title, content, color=0x000000, image=None, video=None, fields=None, thumbnail=None):
         if not self.webhook_url:
             raise ValueError("Webhook URL is not provided")
-        if image and not image.startswith("http") or video and not video.startswith("http"):
-                image = await self.send_file(file=f'{image}', webhook=self.webhook_url)
+
+        if image and not image.startswith("http"):
+            image = await self.send_file(file=f'{image}', webhook=self.webhook_url)
+        if video and not video.startswith("http"):
+            video = await self.send_file(file=f'{video}', webhook=self.webhook_url)
         webhook = discordwebhook.Webhook(url=self.webhook_url)
         try:
             embed = discordwebhook.Embed(title=title, description=content, color=color)
@@ -55,6 +59,11 @@ class CreateEmbed:
                 embed.set_image(url=image)
             if video:
                 embed.set_video(url=video)
+            if fields:
+                for field in fields:
+                    embed.add_field(name=field['name'], value=field['value'], inline=field.get('inline', None))
+            if thumbnail:
+                embed.set_thumbnail(url=thumbnail)
             embed.set_footer(text=f'Bot created by SnarkyDev, Command ran at {datetime.now().strftime("%m/%d, %I:%M %p")}')
             embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
             webhook = await webhook.send_async(

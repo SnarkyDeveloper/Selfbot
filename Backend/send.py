@@ -1,24 +1,30 @@
 import discord
 from Backend.embed import CreateEmbed
 import asyncio
-channel_cache = None
 
+channel_cache = None
 create_embed = CreateEmbed()
-async def send(bot, ctx, title, content=None, color=None, image=None, video=None):
+
+async def send(bot, ctx, title, content=None, color=None, image=None, video=None, fields=None, thumbnail=None):
     global channel_cache
     try:
         async with ctx.typing():
             try:
-                webhook = await create_embed.embed(ctx, title=title, content=content, color=color, image=image, video=video)
+                webhook = await create_embed.embed(ctx, title=title, content=content,color=color, image=image, video=video, fields=fields, thumbnail=thumbnail)
             except Exception as e:
                 webhook = await create_embed.embed(ctx, title='Error', content=f"An error occurred: {e}", color=0xFF0000)
+            
             if channel_cache is None:
                 channel_cache = bot.get_channel(int(webhook.channel_id))
+            
             message = await channel_cache.fetch_message(int(webhook.id))
+            
             if image or video:
                 await asyncio.sleep(2)
+            
             message = await message.forward(ctx.channel)
             return message
+            
     except discord.Forbidden:
         await ctx.send("I don't have permission to embed links in this channel.")
     except discord.HTTPException:
