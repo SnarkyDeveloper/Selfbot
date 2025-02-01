@@ -15,12 +15,13 @@ class Reactions(commands.Cog):
                 url = source
             else:
                 url = random.choice(self.sources)
-            if url != 'https://purrbot.site/api/img/sfw':
-                response = json.loads(httpx.get(f'{url}/{reaction}').text)
-                return response['url']
-            else:
-                response = json.loads(httpx.get(f'{url}/{reaction}/gif').text)
-                return response['link']
+            async with httpx.AsyncClient() as client:
+                if url != 'https://purrbot.site/api/img/sfw':
+                    response = json.loads(client.get(f'{url}/{reaction}').text)
+                    return response['url']
+                else:
+                    response = json.loads(client.get(f'{url}/{reaction}/gif').text)
+                    return response['link']
         except:
             reaction =  await self.get_reaction(reaction)
             return reaction 
