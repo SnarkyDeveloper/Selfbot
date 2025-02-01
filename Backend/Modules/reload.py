@@ -6,7 +6,7 @@ class Reload(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description="Reloads all extensions - BOT OWNER ONLY")
     async def reload(self, ctx):
         if not await is_owner(ctx):
             await send(self.bot, ctx, title='Error', content="You are not allowed to use this command", color=0xff0000)
