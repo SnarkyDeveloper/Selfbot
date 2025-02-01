@@ -36,23 +36,28 @@ class Stealer(commands.Cog):
                 if sticker.name in existing_sticker_names:
                     stolen_assets.append(f"❌ Sticker: `{sticker.name}` already exists")
                     continue
+                    
                 file_extension = 'gif' if sticker.format == discord.StickerFormatType.gif else 'png'
                 file_path = f"{sticker.id}.{file_extension}"
+                
                 if await self.download_asset(sticker.url, file_path):
+                    image_file = None
                     try:
-                        with open(file_path, 'rb') as image_file:
-                            added = await ctx.guild.create_sticker(
-                                name=sticker.name,
-                                description=f"Stolen by {ctx.author}",
-                                emoji="👍",
-                                file=discord.File(image_file),
-                                reason=f"Stolen by {ctx.author}"
-                            )
-                            stolen_assets.append(f"✅ Sticker: `{added.name}`")
+                        image_file = open(file_path, 'rb')
+                        added = await ctx.guild.create_sticker(
+                            name=sticker.name,
+                            description=f"Stolen by {ctx.author}",
+                            emoji="👍",
+                            file=discord.File(image_file),
+                            reason=f"Stolen by {ctx.author}"
+                        )
+                        stolen_assets.append(f"✅ Sticker: `{added.name}`")
                     except Exception as e:
                         print(f"Error creating sticker {sticker.name}: {e}")
                         stolen_assets.append(f"❌ Failed to add sticker: `{sticker.name}`")
                     finally:
+                        if image_file:
+                            image_file.close()
                         try:
                             os.remove(file_path)
                         except Exception as e:

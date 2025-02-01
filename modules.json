@@ -22,6 +22,7 @@
         "stealer": true,
         "help": true,
         "economy": true,
-        "timezone": true
+        "timezone": true,
+        "reload": true
     }
 }

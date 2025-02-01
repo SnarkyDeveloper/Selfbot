@@ -66,7 +66,7 @@ class Snipe(commands.Cog):
 
     @commands.command(description='Clear the snipe cache', aliases=['cs'])
     async def clearsnipe(self, ctx):
-        if not is_owner(ctx.author.id):
+        if not await is_owner(ctx):
             await send(self.bot, ctx, title='Error', content="You are not allowed to use this command", color=0xff0000)
             return
         messages_data = read_messages()

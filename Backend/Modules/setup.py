@@ -13,7 +13,7 @@ class Setup(commands.Cog):
     async def setup(self, ctx):
         if ctx.author.id != ctx.guild.owner.id:
             return await ctx.send("Only the server owner can run this command.")
-        if not is_owner(ctx.author.id):
+        if not await is_owner(ctx):
             return await ctx.send("You are not allowed to run this command.")
         channel = ctx.channel
         if not channel.permissions_for(ctx.guild.me).manage_webhooks:
