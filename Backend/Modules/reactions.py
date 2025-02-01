@@ -10,21 +10,26 @@ class Reactions(commands.Cog):
         self.sources = ['https://nekos.life/api/v2/img', 'https://api.waifu.pics/sfw', 'https://purrbot.site/api/img/sfw']
 
     async def get_reaction(self, reaction, source=None):
-        try:
-            if source:
-                url = source
-            else:
-                url = random.choice(self.sources)
-            async with httpx.AsyncClient() as client:
-                if url != 'https://purrbot.site/api/img/sfw':
-                    response = json.loads(client.get(f'{url}/{reaction}').text)
-                    return response['url']
-                else:
-                    response = json.loads(client.get(f'{url}/{reaction}/gif').text)
-                    return response['link']
-        except:
-            reaction =  await self.get_reaction(reaction)
-            return reaction 
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                url = source if source else random.choice(self.sources)
+            
+                if url == 'https://purrbot.site/api/img/sfw':
+                    response = await client.get(f'{url}/{reaction}/gif')
+                    data = response.json()
+                    return data['link']
+            
+                response = await client.get(f'{url}/{reaction}')
+                data = response.json()
+                return data['url']
+            
+            except (httpx.RequestError, json.JSONDecodeError, KeyError):
+                if source:
+                    return await self.get_reaction(reaction, None)
+                remaining_sources = [s for s in self.sources if s != url]
+                if remaining_sources:
+                    return await self.get_reaction(reaction, random.choice(remaining_sources))
+                raise Exception("All reaction sources failed")
 
     @commands.command(description='Kiss a user!')
     async def kiss(self, ctx, user: discord.Member = None):
