@@ -27,20 +27,17 @@ class Afk(commands.Cog):
         with open(f'{path}/data/users/afk.json', 'r') as f:
             afk_data = json.load(f)
         
-        if not ctx.guild.id:
-            guild = 'DM'
-        else:
-            guild = ctx.guild.id
-        if str(guild) not in afk_data:
-            afk_data[str(guild)] = {}
-        afk_data[str(guild)][str(ctx.author.id)] = {
+        guild = str(ctx.guild.id if ctx.guild else 'DM')
+        if guild not in afk_data:
+            afk_data[guild] = {}
+        afk_data[guild][str(ctx.author.id)] = {
             'reason': reason,
-            'timestamp': time.time() * 1000
+            'timestamp': int(time.time())
         }
 
         with open(f'{path}/data/users/afk.json', 'w') as f:
             json.dump(afk_data, f)
-        await send(self.bot, ctx, title='AFK', content=f'{ctx.author.mention} is now AFK: {reason}', color=0x2ECC71)
+        await send(self.bot, ctx, title=f'{ctx.author.display_name} now AFK: {reason}', color=0x2ECC71)
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -51,14 +48,13 @@ class Afk(commands.Cog):
         with open(f'{path}/data/users/afk.json', 'r') as f:
             afk_data = json.load(f)
 
-        if str(message.author.id) in afk_data.get(str(message.guild.id), {}):
+        guild = str(message.guild.id if message.guild else 'DM')
+        if str(message.author.id) in afk_data.get(guild, {}):
             if not message.content.lower().startswith('>afk') and not message.content.lower().startswith('>brb'):
-                afk_time = round((time.time() * 1000 - afk_data[str(message.guild.id)][str(message.author.id)]['timestamp']) / 1000)
-                del afk_data[str(message.guild.id)][str(message.author.id)]
-                minutes, seconds = divmod(afk_time, 60)
-                hours, minutes = divmod(minutes, 60)
+                afk_time = afk_data[guild][str(message.author.id)]['timestamp']
+                del afk_data[guild][str(message.author.id)]
                 try:
-                    deletable = await send(self.bot, ctx, title='AFK', content=f"Welcome back {message.author.mention}! You were AFK for {hours} hours, {minutes} minutes, and {seconds} seconds.")
+                    deletable = await send(self.bot, ctx, title=f'Welcome Back {message.author.display_name}, you were AFK since <t:{afk_time}:R>', color=0xFEE75C)
                 except Exception as e:
                     print(f"Error: {e}")
                 with open(f'{path}/data/users/afk.json', 'w') as f:
@@ -67,9 +63,11 @@ class Afk(commands.Cog):
                 await deletable.delete(delay=15)
         if message.mentions:
             for user in message.mentions:
-                if str(user.id) in afk_data.get(str(message.guild.id), {}):
-                    reason = afk_data[str(message.guild.id)][str(user.id)]['reason']
-                    await send(self.bot, ctx, title='AFK', content=f"{user.name} is AFK with reason: {reason}")
+                if str(user.id) in afk_data.get(guild, {}):
+                    reason = afk_data[guild][str(user.id)]['reason']
+                    afk_time = afk_data[guild][str(user.id)]['timestamp']
+
+                    await send(self.bot, ctx, title=f"{user.display_name} is AFK with reason: {reason} since <t:{afk_time}:R>", color=0xFEE75C)
 
 async def setup(bot):
     await bot.add_cog(Afk(bot))
