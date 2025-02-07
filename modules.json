@@ -23,6 +23,6 @@
         "help": true,
         "economy": true,
         "timezone": true,
-        "reload": true
+        "admin": true
     }
 }
