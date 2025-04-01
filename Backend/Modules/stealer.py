@@ -19,8 +19,10 @@ class Stealer(commands.Cog):
                 return False
 
     @commands.command(description="Steal emojis and stickers")
-    @has_permissions(manage_emojis=True)
-    async def steal(self, ctx, *args):
+    async def steal(self, ctx: commands.Context, *args):
+        if not ctx.author.guild_permissions.manage_emojis_and_stickers:
+            await send(self.bot, ctx, title='Error', content="You are not allowed to use this command", color=0xff0000)
+            return
         try:
             stolen_assets = []
             emojis_to_steal = []
@@ -41,24 +43,22 @@ class Stealer(commands.Cog):
                 file_path = f"{sticker.id}.{file_extension}"
                 
                 if await self.download_asset(sticker.url, file_path):
-                    image_file = None
                     try:
-                        image_file = open(file_path, 'rb')
-                        added = await ctx.guild.create_sticker(
-                            name=sticker.name,
-                            description=f"Stolen by {ctx.author}",
-                            emoji="👍",
-                            file=discord.File(image_file),
-                            reason=f"Stolen by {ctx.author}"
-                        )
-                        stolen_assets.append(f"✅ Sticker: `{added.name}`")
+                        with open(file_path, 'rb') as image_file:
+                                added = await ctx.guild.create_sticker(
+                                    name=sticker.name,
+                                    description=f"Stolen by {ctx.author}",
+                                    emoji="👍",
+                                    file=discord.File(image_file),
+                                    reason=f"Stolen by {ctx.author}"
+                                )
+                                stolen_assets.append(f"✅ Sticker: `{added.name}`")
                     except Exception as e:
                         print(f"Error creating sticker {sticker.name}: {e}")
                         stolen_assets.append(f"❌ Failed to add sticker: `{sticker.name}`")
                     finally:
-                        if image_file:
-                            image_file.close()
                         try:
+                            image_file.close()
                             os.remove(file_path)
                         except Exception as e:
                             print(f"Error deleting file {file_path}: {e}")

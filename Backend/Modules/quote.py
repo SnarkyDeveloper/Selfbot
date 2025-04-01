@@ -64,8 +64,8 @@ class Quote(commands.Cog):
                     font = ImageFont.truetype(f"{path}/font.otf", min_size)
                     return font, wrap_text(text, font, max_width)
 
-                if message.author.avatar:
-                    avatar_data = await message.author.avatar.read()
+                if message.author.display_avatar:
+                    avatar_data = await message.author.display_avatar.read()
                     avatar_image = Image.open(BytesIO(avatar_data))
                 else:
                     avatar_image = Image.open(f"{path}/default_pfp.png")
