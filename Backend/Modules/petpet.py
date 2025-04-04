@@ -12,7 +12,8 @@ class PetPet(commands.Cog):
         if not user:
             user = ctx.author
         user = await commands.UserConverter().convert(ctx, user)
-        response = httpx.get('https://memeado.vercel.app/api/petpet', params={'image': user.avatar.url})
+        async with httpx.AsyncClient() as client: 
+            response = await client.get('https://memeado.vercel.app/api/petpet', params={'image': user.avatar.url})
 
         if response.status_code == 200:
             with open(f'petpet_{user.id}.gif', 'wb') as f:

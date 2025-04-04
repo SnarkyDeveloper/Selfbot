@@ -2,20 +2,18 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions
 import aiohttp
-import os
+import io
 from Backend.send import send
 
 class Stealer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def download_asset(self, url, file_path):
+    async def download_asset(self, url):
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status == 200:
-                    with open(file_path, 'wb') as file:
-                        file.write(await response.read())
-                    return True
+                    return await response.read()
                 return False
 
     @commands.command(description="Steal emojis and stickers")
@@ -40,28 +38,22 @@ class Stealer(commands.Cog):
                     continue
                     
                 file_extension = 'gif' if sticker.format == discord.StickerFormatType.gif else 'png'
-                file_path = f"{sticker.id}.{file_extension}"
                 
-                if await self.download_asset(sticker.url, file_path):
+                dl = await self.download_asset(sticker.url)
+                if dl:
                     try:
-                        with open(file_path, 'rb') as image_file:
-                                added = await ctx.guild.create_sticker(
-                                    name=sticker.name,
-                                    description=f"Stolen by {ctx.author}",
-                                    emoji="👍",
-                                    file=discord.File(image_file),
-                                    reason=f"Stolen by {ctx.author}"
-                                )
-                                stolen_assets.append(f"✅ Sticker: `{added.name}`")
+                        file_data = io.BytesIO(dl)
+                        added = await ctx.guild.create_sticker(
+                            name=sticker.name,
+                            description=f"Stolen by {ctx.author}",
+                            emoji="👍",
+                            file=discord.File(fp=file_data, filename=f"{sticker.id}.{file_extension}"),
+                            reason=f"Stolen by {ctx.author}"
+                        )
+                        stolen_assets.append(f"✅ Sticker: `{added.name}`")
                     except Exception as e:
                         print(f"Error creating sticker {sticker.name}: {e}")
                         stolen_assets.append(f"❌ Failed to add sticker: `{sticker.name}`")
-                    finally:
-                        try:
-                            image_file.close()
-                            os.remove(file_path)
-                        except Exception as e:
-                            print(f"Error deleting file {file_path}: {e}")
 
             for word in message.content.split():
                 if word.startswith("<:") or word.startswith("<a:"):
@@ -77,27 +69,21 @@ class Stealer(commands.Cog):
                     continue
 
                 file_extension = 'gif' if emoji.animated else 'png'
-                file_path = f"{emoji.id}.{file_extension}"
                 emoji_url = f"https://cdn.discordapp.com/emojis/{emoji.id}.{file_extension}"
 
-                if await self.download_asset(emoji_url, file_path):
+                dl = await self.download_asset(emoji_url)
+                if dl:
                     try:
-                        with open(file_path, 'rb') as image_file:
-                            added = await ctx.guild.create_custom_emoji(
-                                name=emoji.name,
-                                image=image_file.read(),
-                                reason=f"Stolen by {ctx.author} with name {emoji.name}"
-                            )
-                            stolen_assets.append(f"✅ Emoji Added: `:{added.name}:`")
-                            added_emojis.append(added)
+                        added = await ctx.guild.create_custom_emoji(
+                            name=emoji.name,
+                            image=dl,
+                            reason=f"Stolen by {ctx.author} with name {emoji.name}"
+                        )
+                        stolen_assets.append(f"✅ Emoji Added: `:{added.name}:`")
+                        added_emojis.append(added)
                     except Exception as e:
                         print(f"Error creating emoji {emoji.name}: {e}")
                         stolen_assets.append(f"❌ Failed to add emoji: `{emoji.name}`")
-                    finally:
-                        try:
-                            os.remove(file_path)
-                        except Exception as e:
-                            print(f"Error deleting file {file_path}: {e}")
 
             try:
                 for emoji in added_emojis:
