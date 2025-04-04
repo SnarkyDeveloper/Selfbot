@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import json
 from urllib.parse import quote_plus
-import lyrical
+from lyrical import Lyrics as lyr
 from Backend.send import send
 def split_string_into_list(input_string, max_length):
     lyrics = []
@@ -18,13 +18,13 @@ def split_string_into_list(input_string, max_length):
 class Lyrics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot 
-
+        self.lyrics: lyr = lyr()
     @commands.command(description="Get lyrics for a song")
     async def lyrics(self, ctx, query: str):
         if not query:
             await ctx.send("Please provide a song name.")
             return
-        lyrics_data = await lyrical.Lyrics.lyrics(query)
+        lyrics_data = await self.lyrics.lyrics(query)
         if not lyrics_data:
             await send(self.bot, ctx, title='Error', content="No lyrics found.", color=0xff0000)
             return
