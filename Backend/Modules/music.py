@@ -149,7 +149,9 @@ class Music(commands.Cog):
     async def _play_next(self, ctx, voice_client: discord.VoiceClient):
         if not voice_client or not voice_client.is_connected():
             return
-
+        if not ctx.author.voice:
+            await voice_client.disconnect()
+            return
         queue = self._get_queue(ctx)
         queue_id = self._get_queue_id(ctx)
         if queue_id in self.now_playing_messages:
